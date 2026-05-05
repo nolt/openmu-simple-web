@@ -130,16 +130,46 @@
         }
 
         .footer-nav {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            /* Odstęp między przyciskami */
         }
 
         .nav-link {
-            color: #888;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            /* Pogrubienie */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .nav-link:hover {
+            background: rgba(212, 175, 55, 0.1);
+            /* Złota poświata tła */
+            border-color: var(--primary);
+            /* Złota ramka */
+            color: var(--primary);
+            /* Złoty tekst */
+            transform: translateY(-2px);
+            /* Lekki podrzut do góry */
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .nav-link:active {
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -169,7 +199,12 @@
         </form>
         <div id="message"></div>
         <div class="footer-nav">
-            <a href="/" class="nav-link" data-i18n="footerBack">← Back to Registration</a>
+            <a href="/" class="nav-link">
+                <span data-i18n="navRegister">Register</span>
+            </a>
+            <a href="/stats" class="nav-link">
+                <span data-i18n="navStats">Server Stats</span>
+            </a>
         </div>
     </div>
 

@@ -9,9 +9,7 @@ Website is multilanguage English and Polish.
 Website allows:
 - register new account
 - change password
-
-Future plans:
-- list characters with all details (resets, stats)
+- server stats TOP 10
 
 ## Requirements
 - Docker
@@ -31,6 +29,8 @@ Images:
 ![Main page](assets/mainreg.jpg)
 
 ![Change pass](assets/resetpass.jpg)
+
+![Stats](assets/stat.jpg)
 
 ---
 
