@@ -10,12 +10,10 @@ using System.Data;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// --- USŁUGI ---
+// --- SERVICES ---
 builder.Services.AddControllers();
 builder.Services.AddDbContext<OpenMuContext>(options => options.UseNpgsql(connectionString));
 
-// CORS: Kluczowe dla osób zmieniających porty. 
-// Pozwalamy na dostęp z dowolnego hosta, co ułatwia lokalne testy na różnych portach.
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", p => p
         .AllowAnyOrigin()
@@ -27,7 +25,7 @@ var app = builder.Build();
 
 app.UseCors("AllowAll");
 
-// --- 1. PRZEKIEROWANIA (SEO i Przyjazne URLe) ---
+// --- 1. REDIRECTIONS (SEO and Friendly URLs) ---
 var rewriteOptions = new RewriteOptions()
     .AddRewrite("^changepass$", "changepass.html", skipRemainingRules: true)
     .AddRewrite("^stats$", "stats.html", skipRemainingRules: true)
@@ -37,10 +35,10 @@ app.UseRewriter(rewriteOptions);
 app.UseStaticFiles();
 app.UseDefaultFiles();
 
-// Limit rejestracji: 1 konto na 24h na IP
+// Registration limit: 1 account from one IP per 24h
 ConcurrentDictionary<string, DateTime> ipLimit = new();
 
-// --- 2. ENDPOINT: REJESTRACJA ---
+// --- 2. ENDPOINT: REGISTRATION ---
 app.MapPost("/api/register", async (HttpContext context, OpenMuContext db) => {
     try {
         var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -61,12 +59,12 @@ app.MapPost("/api/register", async (HttpContext context, OpenMuContext db) => {
         if (await db.Accounts.AnyAsync(a => a.LoginName == username)) 
             return Results.Content("Login jest już zajęty.", "text/plain", System.Text.Encoding.UTF8, 400);
 
-        // Tworzenie magazynu przedmiotów (Vault)
+        // Creating Vault
         var newVault = new ItemStorage { Id = Guid.NewGuid(), Money = 0 };
         db.ItemStorages.Add(newVault);
         await db.SaveChangesAsync();
 
-        // Tworzenie konta
+        // Account creation
         var account = new Account {
             Id = Guid.NewGuid(),
             LoginName = username,
@@ -90,7 +88,7 @@ app.MapPost("/api/register", async (HttpContext context, OpenMuContext db) => {
     }
 });
 
-// --- 3. ENDPOINT: RANKING (Raw SQL dla wydajności MUnique) ---
+// --- 3. ENDPOINT: RANKS (Raw SQL for speedup MUnique) ---
 app.MapGet("/api/public/ranking", async (OpenMuContext db) => {
     try {
         var sql = @"
@@ -143,7 +141,7 @@ app.MapGet("/api/public/ranking", async (OpenMuContext db) => {
 app.MapControllers();
 app.Run();
 
-// --- 4. MODELE DANYCH ---
+// --- 4. DATA MODELS ---
 
 [Table("ItemStorage", Schema = "data")]
 public class ItemStorage { 

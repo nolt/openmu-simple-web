@@ -18,6 +18,7 @@
             padding: 0;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             font-family: 'Segoe UI', sans-serif;
@@ -40,7 +41,6 @@
             border-top: 4px solid var(--primary);
         }
 
-        /* Przełącznik języków w stylu EN | PL */
         .lang-switch {
             text-align: right;
             font-size: 0.7rem;
@@ -128,7 +128,6 @@
             border-color: #ffd700;
         }
 
-        /* Szklana Nawigacja */
         .footer-nav {
             margin-top: 2.5rem;
             padding-top: 2rem;
@@ -167,6 +166,33 @@
             padding: 20px;
             color: var(--primary);
         }
+
+        .credits {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.credits a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.3);
+    transition: all 0.4s ease;
+    font-weight: 400;
+}
+
+.credits a span {
+    font-weight: 300;
+}
+
+.credits a:hover {
+    color: var(--primary);
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
     </style>
 </head>
 
@@ -204,6 +230,11 @@
             </a>
         </div>
     </div>
+    <div class="credits">
+    <a href="https://github.com/nolt" target="_blank">
+        <span>&lt;/&gt; with ❤️ by</span> Nolt
+    </a>
+    </div>
 
     <script>
         function setLanguage(lang) {
@@ -219,7 +250,6 @@
             document.getElementById('pl-btn').className = lang === 'pl' ? 'active' : '';
         }
 
-        // Inicjalizacja języka
         setLanguage(localStorage.getItem('preferred-lang') || 'en');
 
         async function loadRanking() {
