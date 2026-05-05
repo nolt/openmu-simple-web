@@ -1,0 +1,20 @@
+services:
+  openmu-web:
+    image: openmu-simple-web:latest
+    container_name: openmu-webpage
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    ports:
+      - "${WEB_PORT:-8088}:8080"
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:8080
+      - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS}
+      - TZ=${TIMEZ}
+    networks:
+      - openmu-network
+    restart: always
+
+networks:
+  openmu-network:
+    external: true

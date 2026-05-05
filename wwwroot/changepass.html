@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenMU - Change Password</title>
+    <script src="translations.js"></script>
+    <style>
+        :root {
+            --primary: #d4af37;
+            --text: #e0e0e0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text);
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('mubg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a0a0a;
+        }
+
+        .lang-switch {
+            text-align: right;
+            font-size: 0.7rem;
+            margin-bottom: -10px;
+            font-weight: bold;
+        }
+
+        .lang-switch span {
+            cursor: pointer;
+            color: #666;
+            transition: 0.3s;
+            padding: 0 5px;
+        }
+
+        .lang-switch span.active {
+            color: var(--primary);
+        }
+
+        .container {
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 380px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #d4af37 0%, #a68a2d 100%);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            text-transform: uppercase;
+            transition: 0.3s;
+            margin-top: 1rem;
+        }
+
+        #message {
+            margin-top: 1.5rem;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .success {
+            background: rgba(39, 174, 96, 0.2);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .error {
+            background: rgba(192, 57, 43, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .footer-nav {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .nav-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="lang-switch">
+            <span onclick="setLanguage('en')" id="en-btn">EN</span> | <span onclick="setLanguage('pl')"
+                id="pl-btn">PL</span>
+        </div>
+        <h2 data-i18n="titleChange">Change Password</h2>
+        <form id="changePassForm">
+            <div class="form-group">
+                <label data-i18n="login">Login</label>
+                <input type="text" name="username" required data-i18n-placeholder="placeholderLogin">
+            </div>
+            <div class="form-group">
+                <label data-i18n="oldPass">Current Password</label>
+                <input type="password" name="oldPassword" required data-i18n-placeholder="placeholderPass">
+            </div>
+            <div class="form-group">
+                <label data-i18n="newPass">New Password</label>
+                <input type="password" name="newPassword" required minlength="8" maxlength="16"
+                    data-i18n-placeholder="placeholderPass">
+            </div>
+            <button type="submit" id="submitBtn" data-i18n="btnChange">Update Password</button>
+        </form>
+        <div id="message"></div>
+        <div class="footer-nav">
+            <a href="/" class="nav-link" data-i18n="footerBack">← Back to Registration</a>
+        </div>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            const t = window.muTranslations[lang];
+            localStorage.setItem('preferred-lang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = t[el.getAttribute('data-i18n')]);
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t[el.getAttribute('data-i18n-placeholder')]);
+            document.getElementById('en-btn').className = lang === 'en' ? 'active' : '';
+            document.getElementById('pl-btn').className = lang === 'pl' ? 'active' : '';
+        }
+
+        setLanguage(localStorage.getItem('preferred-lang') || 'en');
+
+        document.getElementById('changePassForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgDiv = document.getElementById('message'), btn = document.getElementById('submitBtn'),
+                t = window.muTranslations[localStorage.getItem('preferred-lang') || 'en'];
+
+            msgDiv.style.display = 'none'; btn.disabled = true;
+            const originalText = btn.innerText;
+            btn.innerText = t.processing;
+
+            try {
+                const response = await fetch('/api/change-password', { method: 'POST', body: new FormData(e.target) });
+                const result = await response.text();
+                msgDiv.style.display = 'block'; msgDiv.className = response.ok ? 'success' : 'error';
+                msgDiv.innerText = result;
+                if (response.ok) e.target.reset();
+            } catch (error) {
+                msgDiv.style.display = 'block'; msgDiv.className = 'error'; msgDiv.innerText = t.connError;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = t.btnChange;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenMU - Registration</title>
+    <script src="translations.js"></script>
+    <style>
+        :root {
+            --primary: #d4af37;
+            --text: #e0e0e0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text);
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('mubg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a0a0a;
+        }
+
+        .lang-switch {
+            text-align: right;
+            font-size: 0.7rem;
+            margin-bottom: -10px;
+            font-weight: bold;
+        }
+
+        .lang-switch span {
+            cursor: pointer;
+            color: #666;
+            transition: 0.3s;
+            padding: 0 5px;
+        }
+
+        .lang-switch span.active {
+            color: var(--primary);
+        }
+
+        .container {
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .warning-box {
+            background: rgba(212, 175, 55, 0.1);
+            border-left: 3px solid var(--primary);
+            padding: 10px;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            color: #d4af37;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #d4af37 0%, #a68a2d 100%);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            text-transform: uppercase;
+            transition: 0.3s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        #message {
+            margin-top: 1.5rem;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .success {
+            background: rgba(39, 174, 96, 0.2);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .error {
+            background: rgba(192, 57, 43, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .footer-nav {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .nav-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #000;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="lang-switch">
+            <span onclick="setLanguage('en')" id="en-btn">EN</span> | <span onclick="setLanguage('pl')"
+                id="pl-btn">PL</span>
+        </div>
+        <h2 data-i18n="title">OpenMU</h2>
+        <form id="regForm">
+            <div class="form-group">
+                <label data-i18n="login">Login</label>
+                <input type="text" name="username" required minlength="3" maxlength="12"
+                    data-i18n-placeholder="placeholderLogin">
+            </div>
+            <div class="form-group">
+                <label data-i18n="email">Email</label>
+                <input type="email" name="email" required data-i18n-placeholder="placeholderEmail">
+            </div>
+            <div class="form-group">
+                <label data-i18n="pass">Password</label>
+                <input type="password" name="password" required minlength="8" maxlength="16"
+                    data-i18n-placeholder="placeholderPass">
+            </div>
+            <div class="form-group">
+                <label data-i18n="pin">Security Code (PIN)</label>
+                <input type="text" name="securityCode" required minlength="6" maxlength="10"
+                    data-i18n-placeholder="placeholderPin">
+                <div class="warning-box" data-i18n="pinWarn">Required for in-game character operations.</div>
+            </div>
+            <button type="submit" id="submitBtn">
+                <span id="btnText" data-i18n="btnReg">Create Account</span>
+                <div id="btnLoader" class="loader"></div>
+            </button>
+        </form>
+        <div id="message"></div>
+        <div class="footer-nav">
+            <span data-i18n="footerReg"
+                style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">Already have an
+                account?</span>
+            <a href="/changepass" class="nav-link" data-i18n="btnChangeNav">Change Password →</a>
+        </div>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            const t = window.muTranslations[lang];
+            localStorage.setItem('preferred-lang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = t[el.getAttribute('data-i18n')]);
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t[el.getAttribute('data-i18n-placeholder')]);
+            document.getElementById('en-btn').className = lang === 'en' ? 'active' : '';
+            document.getElementById('pl-btn').className = lang === 'pl' ? 'active' : '';
+        }
+
+        setLanguage(localStorage.getItem('preferred-lang') || 'en');
+
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn'), btnText = document.getElementById('btnText'),
+                btnLoader = document.getElementById('btnLoader'), msgDiv = document.getElementById('message'),
+                t = window.muTranslations[localStorage.getItem('preferred-lang') || 'en'];
+
+            btn.disabled = true; btnText.style.display = 'none'; btnLoader.style.display = 'block';
+            try {
+                const response = await fetch('/api/register', { method: 'POST', body: new FormData(e.target) });
+                const result = await response.text();
+                msgDiv.className = response.ok ? 'success' : 'error';
+                msgDiv.innerHTML = result;
+                msgDiv.style.display = 'block';
+                if (response.ok) e.target.reset();
+            } catch (error) {
+                msgDiv.className = 'error'; msgDiv.innerText = t.connError; msgDiv.style.display = 'block';
+            } finally {
+                btn.disabled = false; btnText.style.display = 'block'; btnLoader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
