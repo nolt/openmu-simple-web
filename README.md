@@ -1,9 +1,9 @@
 # openmu-simple-web
-This is simple web page for OpenMU. 
+This is simple website for OpenMU. 
 
-It was created as webpage for mine OpenMU builder: https://github.com/nolt/openmu-docker
+It was created as website for mine OpenMU builder: https://github.com/nolt/openmu-docker
 
-Web page allows:
+Website allows:
 - register new account
 - change password
 

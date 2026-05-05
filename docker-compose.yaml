@@ -1,7 +1,7 @@
 services:
   openmu-web:
-    image: openmu-simple-web:latest
-    container_name: openmu-webpage
+    image: openmu-web:latest
+    container_name: openmu-website
     build:
       context: .
       dockerfile: Dockerfile 
