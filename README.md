@@ -1,7 +1,7 @@
 # openmu-simple-web
 This is simple website for OpenMU. 
 
-Website has been created for mine OpenMU server builder: https://github.com/nolt/openmu-docker
+Website has been created for mine OpenMU server builder: https://github.com/nolt/openmu-docker  
 It connects to same docker network where database is.
 
 Website is multilanguage English and Polish.
