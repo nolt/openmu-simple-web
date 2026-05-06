@@ -88,7 +88,35 @@ app.MapPost("/api/register", async (HttpContext context, OpenMuContext db) => {
     }
 });
 
-// --- 3. ENDPOINT: RANKS (Raw SQL for speedup MUnique) ---
+// --- 3. ENDPOINT: CHANGE PASSWORD ---
+app.MapPost("/api/change-password", async (HttpContext context, OpenMuContext db) => {
+    try {
+        var form = await context.Request.ReadFormAsync();
+        var username = form["username"].ToString().Trim();
+        var oldPassword = form["oldPassword"].ToString();
+        var newPassword = form["newPassword"].ToString();
+
+        var account = await db.Accounts.FirstOrDefaultAsync(a => a.LoginName == username);
+        if (account == null) 
+            return Results.Content("Użytkownik nie istnieje.", "text/plain", System.Text.Encoding.UTF8, 404);
+
+        if (!BCrypt.Net.BCrypt.Verify(oldPassword, account.PasswordHash))
+            return Results.Content("Obecne hasło jest nieprawidłowe.", "text/plain", System.Text.Encoding.UTF8, 401);
+
+        if (newPassword.Length < 8 || newPassword.Length > 16)
+            return Results.Content("Nowe hasło musi mieć od 8 do 16 znaków.", "text/plain", System.Text.Encoding.UTF8, 400);
+
+        account.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await db.SaveChangesAsync();
+
+        return Results.Ok("Hasło zostało zmienione!");
+    }
+    catch (Exception ex) {
+        return Results.Content("Błąd: " + ex.Message, "text/plain", System.Text.Encoding.UTF8, 500);
+    }
+});
+
+// --- 4. ENDPOINT: RANKS (Raw SQL for speedup MUnique) ---
 app.MapGet("/api/public/ranking", async (OpenMuContext db) => {
     try {
         var sql = @"
@@ -141,7 +169,7 @@ app.MapGet("/api/public/ranking", async (OpenMuContext db) => {
 app.MapControllers();
 app.Run();
 
-// --- 4. DATA MODELS ---
+// --- 5. DATA MODELS ---
 
 [Table("ItemStorage", Schema = "data")]
 public class ItemStorage { 
