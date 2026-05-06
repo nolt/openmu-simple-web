@@ -5,235 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenMU - Registration</title>
+    <link rel="stylesheet" href="style.css">
     <script src="translations.js"></script>
-    <style>
-        :root {
-            --primary: #d4af37;
-            --text: #e0e0e0;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', sans-serif;
-            color: var(--text);
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('mubg.jpg') no-repeat center center fixed;
-            background-size: cover;
-            background-color: #0a0a0a;
-        }
-
-        .lang-switch {
-            text-align: right;
-            font-size: 0.7rem;
-            margin-bottom: -10px;
-            font-weight: bold;
-        }
-
-        .lang-switch span {
-            cursor: pointer;
-            color: #666;
-            transition: 0.3s;
-            padding: 0 5px;
-        }
-
-        .lang-switch span.active {
-            color: var(--primary);
-        }
-
-        .container {
-            background: rgba(20, 20, 20, 0.7);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: 4px solid var(--primary);
-        }
-
-        h2 {
-            text-align: center;
-            color: var(--primary);
-            margin-bottom: 2rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.75rem;
-            color: #aaa;
-            text-transform: uppercase;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 6px;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: rgba(0, 0, 0, 0.7);
-        }
-
-        .warning-box {
-            background: rgba(212, 175, 55, 0.1);
-            border-left: 3px solid var(--primary);
-            padding: 10px;
-            font-size: 0.75rem;
-            margin-top: 10px;
-            color: #d4af37;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #d4af37 0%, #a68a2d 100%);
-            border: none;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 6px;
-            text-transform: uppercase;
-            transition: 0.3s;
-            margin-top: 1rem;
-        }
-
-        button:hover {
-            filter: brightness(1.1);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-        }
-
-        #message {
-            margin-top: 1.5rem;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            display: none;
-            font-size: 0.9rem;
-            backdrop-filter: blur(5px);
-        }
-
-        .success {
-            background: rgba(39, 174, 96, 0.2);
-            color: #2ecc71;
-            border: 1px solid #2ecc71;
-        }
-
-        .error {
-            background: rgba(192, 57, 43, 0.2);
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-        }
-
-        .footer-nav {
-            margin-top: 2.5rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 10px 20px;
-            border-radius: 8px;
-            color: var(--text);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .nav-link:hover {
-            background: rgba(212, 175, 55, 0.1);
-            border-color: var(--primary);
-            color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
-        }
-
-        .nav-link:active {
-            transform: translateY(0);
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-        }
-
-        .loader {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top: 3px solid #000;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        .credits {
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    width: 100%;
-    text-align: center;
-    font-size: 0.7rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.credits a {
-    text-decoration: none;
-    color: rgba(255, 255, 255, 0.3);
-    transition: all 0.4s ease;
-    font-weight: 400;
-}
-
-.credits a span {
-    font-weight: 300;
-}
-
-.credits a:hover {
-    color: var(--primary);
-    opacity: 1;
-    text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
-}
-    </style>
 </head>
 
 <body>
@@ -260,13 +33,13 @@
             </div>
             <div class="form-group">
                 <label data-i18n="pin">Security Code (PIN)</label>
-                <input type="text" name="securityCode" required minlength="6" maxlength="10"
+                <input type="text" name="securityCode" required minlength="6" maxlength="10" pattern="[0-9]{6,10}"
                     data-i18n-placeholder="placeholderPin">
                 <div class="warning-box" data-i18n="pinWarn">Required for in-game character operations.</div>
             </div>
             <button type="submit" id="submitBtn">
                 <span id="btnText" data-i18n="btnReg">Create Account</span>
-                <div id="btnLoader" class="loader"></div>
+                <div id="btnLoader" class="spinner-loader"></div>
             </button>
         </form>
         <div id="message"></div>
@@ -319,7 +92,6 @@
         });
     </script>
 
-</div>
 </body>
 
 </html>
