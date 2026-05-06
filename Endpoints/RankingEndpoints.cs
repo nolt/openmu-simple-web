@@ -32,7 +32,10 @@ public static class RankingEndpoints
                          WHERE a.""CharacterId"" = c.""Id"" AND ad.""Designation"" = 'Resets' LIMIT 1) as ""Resets""
                     FROM data.""Character"" c
                     JOIN config.""CharacterClass"" cc ON c.""CharacterClassId"" = cc.""Id""
-                    ORDER BY c.""Experience"" DESC
+                    ORDER BY COALESCE((SELECT a.""Value"" FROM data.""StatAttribute"" a
+                     JOIN config.""AttributeDefinition"" ad ON a.""DefinitionId"" = ad.""Id""
+                     WHERE a.""CharacterId"" = c.""Id"" AND ad.""Designation"" = 'Resets' LIMIT 1), 0) DESC,
+                         c.""Experience"" DESC
                     LIMIT 10";
 
                 var result = new List<object>();
