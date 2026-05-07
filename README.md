@@ -9,7 +9,8 @@ Website is multilanguage English and Polish.
 Website allows:
 - register new account
 - change password
-- server stats TOP 10
+- server status
+- server TOP 10
 
 ## Requirements
 - Docker

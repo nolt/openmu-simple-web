@@ -16,7 +16,7 @@ public static class PasswordEndpoints
                 var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
                 if (rateLimiter.IsLimited(ip, 5, TimeSpan.FromMinutes(15)))
-                    return Results.Content("Zbyt wiele prób. Spróbuj ponownie za 15 minut.", "text/plain", System.Text.Encoding.UTF8, 429);
+                    return Results.Json(new { code = "RATE_LIMIT_PASSWORD", message = "Zbyt wiele prób. Spróbuj ponownie za 15 minut." }, statusCode: 429);
 
                 var form = await context.Request.ReadFormAsync();
                 var username = form["username"].ToString().Trim();
@@ -25,23 +25,23 @@ public static class PasswordEndpoints
 
                 var account = await db.Accounts.FirstOrDefaultAsync(a => a.LoginName == username);
                 if (account == null)
-                    return Results.Content("Użytkownik nie istnieje.", "text/plain", System.Text.Encoding.UTF8, 404);
+                    return Results.Json(new { code = "USER_NOT_FOUND", message = "Użytkownik nie istnieje." }, statusCode: 404);
 
                 if (!BCrypt.Net.BCrypt.Verify(oldPassword, account.PasswordHash))
-                    return Results.Content("Obecne hasło jest nieprawidłowe.", "text/plain", System.Text.Encoding.UTF8, 401);
+                    return Results.Json(new { code = "INVALID_OLD_PASSWORD", message = "Obecne hasło jest nieprawidłowe." }, statusCode: 401);
 
                 if (newPassword.Length < 8 || newPassword.Length > 16)
-                    return Results.Content("Nowe hasło musi mieć od 8 do 16 znaków.", "text/plain", System.Text.Encoding.UTF8, 400);
+                    return Results.Json(new { code = "INVALID_PASSWORD_LENGTH", message = "Nowe hasło musi mieć od 8 do 16 znaków." }, statusCode: 400);
 
                 account.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
                 await db.SaveChangesAsync();
 
-                return Results.Ok("Hasło zostało zmienione!");
+                return Results.Json(new { code = "PASSWORD_CHANGE_SUCCESS", message = "Hasło zostało zmienione!" });
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error during password change");
-                return Results.Content("Nie udało się zmienić hasła.", "text/plain", System.Text.Encoding.UTF8, 500);
+                return Results.Json(new { code = "SERVER_ERROR", message = "Nie udało się zmienić hasła." }, statusCode: 500);
             }
         });
     }

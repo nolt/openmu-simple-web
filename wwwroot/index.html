@@ -19,8 +19,8 @@
         <form id="regForm">
             <div class="form-group">
                 <label data-i18n="login">Login</label>
-                <input type="text" name="username" required minlength="3" maxlength="12"
-                    data-i18n-placeholder="placeholderLogin">
+<input type="text" name="username" required minlength="3" maxlength="10"
+    data-i18n-placeholder="placeholderLogin">
             </div>
             <div class="form-group">
                 <label data-i18n="email">Email</label>
@@ -79,9 +79,9 @@
             btn.disabled = true; btnText.style.display = 'none'; btnLoader.style.display = 'block';
             try {
                 const response = await fetch('/api/register', { method: 'POST', body: new FormData(e.target) });
-                const result = await response.text();
+                const data = await response.json();
                 msgDiv.className = response.ok ? 'success' : 'error';
-                msgDiv.innerHTML = result;
+                msgDiv.innerText = t[data.code] || data.message;
                 msgDiv.style.display = 'block';
                 if (response.ok) e.target.reset();
             } catch (error) {

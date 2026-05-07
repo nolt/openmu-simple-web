@@ -74,9 +74,9 @@
 
             try {
                 const response = await fetch('/api/change-password', { method: 'POST', body: new FormData(e.target) });
-                const result = await response.text();
+                const data = await response.json();
                 msgDiv.style.display = 'block'; msgDiv.className = response.ok ? 'success' : 'error';
-                msgDiv.innerText = result;
+                msgDiv.innerText = t[data.code] || data.message;
                 if (response.ok) e.target.reset();
             } catch (error) {
                 msgDiv.style.display = 'block'; msgDiv.className = 'error'; msgDiv.innerText = t.connError;

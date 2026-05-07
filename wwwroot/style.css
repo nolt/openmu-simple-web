@@ -7,8 +7,9 @@
 /* === BASE === */
 body {
     margin: 0;
-    padding: 0;
+    padding: 2rem 0;
     min-height: 100vh;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -304,4 +305,46 @@ tr:nth-child(1) .reset-badge {
     text-align: center;
     padding: 20px;
     color: var(--primary);
+}
+
+/* === SERVER STATUS === */
+.server-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.status-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #666;
+    display: inline-block;
+    flex-shrink: 0;
+    transition: background 0.3s;
+}
+
+#statusText {
+    line-height: 1;
+}
+
+.status-dot.online {
+    background: #2ecc71;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.6);
+    animation: pulse 2s infinite;
+}
+
+.status-dot.offline {
+    background: #e74c3c;
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }

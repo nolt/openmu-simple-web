@@ -62,5 +62,23 @@ app.MapRegistrationEndpoints();
 app.MapPasswordEndpoints();
 app.MapRankingEndpoints();
 
+var serverCheckConfig = builder.Configuration.GetSection("ServerCheck");
+var serverHost = serverCheckConfig["Host"] ?? "openmu-server";
+var serverPort = int.Parse(serverCheckConfig["Port"] ?? "44406");
+
+app.MapGet("/api/public/server-status", async () =>
+{
+    try
+    {
+        using var tcp = new System.Net.Sockets.TcpClient();
+        await tcp.ConnectAsync(serverHost, serverPort).WaitAsync(TimeSpan.FromSeconds(2));
+        return Results.Json(new { online = true });
+    }
+    catch
+    {
+        return Results.Json(new { online = false });
+    }
+});
+
 app.MapControllers();
 app.Run();

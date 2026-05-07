@@ -18,6 +18,11 @@
 
         <h2 data-i18n="rankingTitle">Top 10 Heroes</h2>
 
+        <div class="server-status" id="serverStatus">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Checking...</span>
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -64,6 +69,31 @@
         }
 
         setLanguage(localStorage.getItem('preferred-lang') || 'en');
+
+        async function checkServerStatus() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const t = window.muTranslations[localStorage.getItem('preferred-lang') || 'en'];
+
+            try {
+                const response = await fetch('/api/public/server-status');
+                const data = await response.json();
+
+                if (data.online) {
+                    statusDot.className = 'status-dot online';
+                    statusText.innerText = t.online || 'Online';
+                } else {
+                    statusDot.className = 'status-dot offline';
+                    statusText.innerText = t.offline || 'Offline';
+                }
+            } catch {
+                statusDot.className = 'status-dot offline';
+                statusText.innerText = t.offline || 'Offline';
+            }
+        }
+
+        checkServerStatus();
+        setInterval(checkServerStatus, 30000);
 
         async function loadRanking() {
             const rankingBody = document.getElementById('rankingBody');

@@ -10,6 +10,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://0.0.0.0:8080
       - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS}
+      - ServerCheck__Host=${SERVER_CHECK_HOST:-openmu-server}
+      - ServerCheck__Port=${SERVER_CHECK_PORT:-44406}
       - TZ=${TIMEZ}
     networks:
       - openmu-network
