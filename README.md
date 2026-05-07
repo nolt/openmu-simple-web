@@ -31,7 +31,7 @@ Images:
 
 ![Change pass](assets/resetpass.jpg)
 
-![Stats](assets/stat.jpg)
+![Stats](assets/top10.jpg)
 
 ---
 
