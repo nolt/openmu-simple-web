@@ -14,6 +14,9 @@ public static class RegistrationEndpoints
         {
             try
             {
+                if (!context.Request.Headers.TryGetValue("X-Requested-With", out var v) || v != "XMLHttpRequest")
+                    return Results.Json(new { code = "INVALID_REQUEST" }, statusCode: 400);
+
                 var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
                 if (ipLimit.TryGetValue(remoteIp, out var lastReg) && lastReg > DateTime.UtcNow.AddDays(-1))
                     return Results.Json(new { code = "RATE_LIMIT_IP", message = "Limit 1 konta na 24h dla tego IP." }, statusCode: 429);

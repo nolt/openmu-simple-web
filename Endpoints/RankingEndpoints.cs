@@ -10,7 +10,7 @@ public static class RankingEndpoints
 {
     public static void MapRankingEndpoints(this WebApplication app)
     {
-        app.MapGet("/api/public/ranking", async (OpenMuContext db, HttpContext context, RankingRateLimiter rateLimiter, [FromServices] ILogger<Program> logger) =>
+        app.MapGet("/api/public/ranking", async (OpenMuContext db, HttpContext context, [FromKeyedServices("ranking")] RateLimiter rateLimiter, [FromServices] ILogger<Program> logger) =>
         {
             try
             {

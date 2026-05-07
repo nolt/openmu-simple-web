@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenMU - Change Password</title>
+    <title>OpenMU - Registration</title>
     <link rel="stylesheet" href="style.css">
     <script src="translations.js"></script>
 </head>
@@ -15,23 +15,30 @@
             <span onclick="setLanguage('en')" id="en-btn">EN</span> | <span onclick="setLanguage('pl')"
                 id="pl-btn">PL</span>
         </div>
-        <h2 data-i18n="titleChange">Change Password</h2>
-        <form id="changePassForm">
+        <h2 data-i18n="title">OpenMU</h2>
+        <form id="regForm">
             <div class="form-group">
                 <label data-i18n="login">Login</label>
-                <input type="text" name="username" required data-i18n-placeholder="placeholderLogin">
+<input type="text" name="username" required minlength="3" maxlength="10"
+    data-i18n-placeholder="placeholderLogin">
             </div>
             <div class="form-group">
-                <label data-i18n="oldPass">Current Password</label>
-                <input type="password" name="oldPassword" required data-i18n-placeholder="placeholderPass">
+                <label data-i18n="email">Email</label>
+                <input type="email" name="email" required data-i18n-placeholder="placeholderEmail">
             </div>
             <div class="form-group">
-                <label data-i18n="newPass">New Password</label>
-                <input type="password" name="newPassword" required minlength="8" maxlength="16"
+                <label data-i18n="pass">Password</label>
+                <input type="password" name="password" required minlength="8" maxlength="16"
                     data-i18n-placeholder="placeholderPass">
             </div>
+            <div class="form-group">
+                <label data-i18n="pin">Security Code (PIN)</label>
+                <input type="text" name="securityCode" required minlength="6" maxlength="10" pattern="[0-9]{6,10}"
+                    data-i18n-placeholder="placeholderPin">
+                <div class="warning-box" data-i18n="pinWarn">Required for in-game character operations.</div>
+            </div>
             <button type="submit" id="submitBtn">
-                <span id="btnText" data-i18n="btnChange">Update Password</span>
+                <span id="btnText" data-i18n="btnReg">Create Account</span>
                 <div id="btnLoader" class="spinner-loader"></div>
             </button>
         </form>
@@ -39,6 +46,9 @@
         <div class="footer-nav">
             <a href="/" class="nav-link">
                 <span data-i18n="navHome">Strona Główna</span>
+            </a>
+            <a href="/changepass" class="nav-link">
+                <span data-i18n="navChangePass">Zmień Hasło</span>
             </a>
         </div>
     </div>
@@ -60,29 +70,28 @@
 
         setLanguage(localStorage.getItem('preferred-lang') || 'en');
 
-        document.getElementById('changePassForm').addEventListener('submit', async (e) => {
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn'), btnText = document.getElementById('btnText'),
                 btnLoader = document.getElementById('btnLoader'), msgDiv = document.getElementById('message'),
                 t = window.muTranslations[localStorage.getItem('preferred-lang') || 'en'];
 
-            msgDiv.style.display = 'none'; btn.disabled = true;
-            btnText.style.display = 'none'; btnLoader.style.display = 'block';
-
+            btn.disabled = true; btnText.style.display = 'none'; btnLoader.style.display = 'block';
             try {
-                const response = await fetch('/api/change-password', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: new FormData(e.target) });
+                const response = await fetch('/api/register', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: new FormData(e.target) });
                 const data = await response.json();
-                msgDiv.style.display = 'block'; msgDiv.className = response.ok ? 'success' : 'error';
+                msgDiv.className = response.ok ? 'success' : 'error';
                 msgDiv.innerText = t[data.code] || data.message;
+                msgDiv.style.display = 'block';
                 if (response.ok) e.target.reset();
             } catch (error) {
-                msgDiv.style.display = 'block'; msgDiv.className = 'error'; msgDiv.innerText = t.connError;
+                msgDiv.className = 'error'; msgDiv.innerText = t.connError; msgDiv.style.display = 'block';
             } finally {
-                btn.disabled = false;
-                btnText.style.display = 'block'; btnLoader.style.display = 'none';
+                btn.disabled = false; btnText.style.display = 'block'; btnLoader.style.display = 'none';
             }
         });
     </script>
+
 </body>
 
 </html>

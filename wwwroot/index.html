@@ -4,94 +4,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenMU - Registration</title>
+    <title>OpenMU</title>
     <link rel="stylesheet" href="style.css">
     <script src="translations.js"></script>
+    <script src="content.js"></script>
+    <style>
+        .index-container {
+            max-width: 900px;
+        }
+
+        .index-container .lang-switch {
+            margin-bottom: 0;
+        }
+
+        .index-grid {
+            display: flex;
+            gap: 2.5rem;
+            align-items: stretch;
+        }
+
+        .index-left {
+            flex: 1.4;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .index-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .index-status-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .index-status-row .index-status {
+            flex: 1;
+            margin-top: 0;
+        }
+
+        .index-status {
+            text-align: center;
+            padding: 0.8rem 1rem;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .index-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .index-text {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #ccc;
+        }
+
+        .details-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .details-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .details-row li {
+            font-size: 0.8rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            list-style: none;
+        }
+
+        .details-row .detail-label {
+            color: #ccc;
+        }
+
+        .details-row a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .details-row a:hover {
+            text-decoration: underline;
+        }
+
+        .status-dot-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-bottom: 6px;
+            transition: background 0.3s;
+        }
+
+        .status-dot-box.online {
+            background: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot-box.offline {
+            background: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .status-value.online { color: #2ecc71; }
+        .status-value.offline { color: #e74c3c; }
+
+        .status-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .players-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #3498db;
+            margin-bottom: 4px;
+        }
+
+        .btn-download {
+            display: block;
+            text-align: center;
+            padding: 16px;
+            background: linear-gradient(135deg, #d4af37 0%, #a68a2d 100%);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-download:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+        }
+
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 700px) {
+            .index-grid {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="container index-container">
         <div class="lang-switch">
-            <span onclick="setLanguage('en')" id="en-btn">EN</span> | <span onclick="setLanguage('pl')"
-                id="pl-btn">PL</span>
+            <span onclick="setLanguage('en')" id="en-btn">EN</span> |
+            <span onclick="setLanguage('pl')" id="pl-btn">PL</span>
         </div>
-        <h2 data-i18n="title">OpenMU</h2>
-        <form id="regForm">
-            <div class="form-group">
-                <label data-i18n="login">Login</label>
-<input type="text" name="username" required minlength="3" maxlength="10"
-    data-i18n-placeholder="placeholderLogin">
+
+        <div class="index-grid">
+            <div class="index-left">
+                <div class="index-title" id="welcomeTitle">Welcome to OpenMU</div>
+                <div class="index-text" id="welcomeText"></div>
+                <div class="details-list" id="detailsList"></div>
             </div>
-            <div class="form-group">
-                <label data-i18n="email">Email</label>
-                <input type="email" name="email" required data-i18n-placeholder="placeholderEmail">
+
+            <div class="index-right">
+                <div class="index-status-row">
+                    <div class="index-status">
+                        <div class="status-dot-box" id="indexStatusDot"></div>
+                        <div class="status-value" id="indexStatusText">---</div>
+                        <div class="status-label" data-i18n="srvStatus">Server Status</div>
+                    </div>
+                    <div class="index-status">
+                        <div class="players-value" id="indexPlayersText">0</div>
+                        <div class="status-label" data-i18n="playersOnline">Graczy Online</div>
+                    </div>
+                </div>
+                <a class="btn-download" id="downloadBtn" href="#">Download Client</a>
             </div>
-            <div class="form-group">
-                <label data-i18n="pass">Password</label>
-                <input type="password" name="password" required minlength="8" maxlength="16"
-                    data-i18n-placeholder="placeholderPass">
-            </div>
-            <div class="form-group">
-                <label data-i18n="pin">Security Code (PIN)</label>
-                <input type="text" name="securityCode" required minlength="6" maxlength="10" pattern="[0-9]{6,10}"
-                    data-i18n-placeholder="placeholderPin">
-                <div class="warning-box" data-i18n="pinWarn">Required for in-game character operations.</div>
-            </div>
-            <button type="submit" id="submitBtn">
-                <span id="btnText" data-i18n="btnReg">Create Account</span>
-                <div id="btnLoader" class="spinner-loader"></div>
-            </button>
-        </form>
-        <div id="message"></div>
+        </div>
+
         <div class="footer-nav">
-            <a href="/stats" class="nav-link">
-                <span data-i18n="navStats">Server Stats</span>
+            <a href="/register" class="nav-link">
+                <span data-i18n="navRegister">Register Account</span>
             </a>
             <a href="/changepass" class="nav-link">
                 <span data-i18n="navChangePass">Change Password</span>
             </a>
+            <a href="/stats" class="nav-link">
+                <span data-i18n="navStats">Server Stats</span>
+            </a>
+            <a href="/events" class="nav-link">
+                <span data-i18n="navEvents">Events</span>
+            </a>
         </div>
     </div>
     <div class="credits">
-    <a href="https://github.com/nolt" target="_blank">
-        <span>&lt;/&gt; with ❤️ by</span> Nolt
-    </a>
+        <a href="https://github.com/nolt" target="_blank">
+            <span>&lt;/&gt; with ❤️ by</span> Nolt
+        </a>
     </div>
 
     <script>
         function setLanguage(lang) {
             const t = window.muTranslations[lang];
+            const c = window.muContent[lang];
+
             localStorage.setItem('preferred-lang', lang);
-            document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = t[el.getAttribute('data-i18n')]);
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t[el.getAttribute('data-i18n-placeholder')]);
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerText = t[key];
+            });
+
             document.getElementById('en-btn').className = lang === 'en' ? 'active' : '';
             document.getElementById('pl-btn').className = lang === 'pl' ? 'active' : '';
+
+            document.getElementById('welcomeTitle').innerText = c.welcomeTitle;
+            document.getElementById('welcomeText').innerText = c.welcomeText;
+            document.getElementById('downloadBtn').innerText = c.btnDownload;
+            document.getElementById('downloadBtn').href = c.downloadUrl;
+
+            const list = document.getElementById('detailsList');
+            list.innerHTML = c.rows.map(row =>
+                '<div class="details-row">' + row.map(d =>
+                    d.url
+                        ? `<li><span class="detail-label">${d.label}:</span> <a href="${d.url}" target="_blank">${d.value}</a></li>`
+                        : `<li><span class="detail-label">${d.label}:</span> ${d.value}</li>`
+                ).join('') + '</div>'
+            ).join('');
         }
 
         setLanguage(localStorage.getItem('preferred-lang') || 'en');
 
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn'), btnText = document.getElementById('btnText'),
-                btnLoader = document.getElementById('btnLoader'), msgDiv = document.getElementById('message'),
-                t = window.muTranslations[localStorage.getItem('preferred-lang') || 'en'];
+        async function checkServerStatus() {
+            const dot = document.getElementById('indexStatusDot');
+            const text = document.getElementById('indexStatusText');
+            const lang = localStorage.getItem('preferred-lang') || 'en';
+            const t = window.muTranslations[lang];
 
-            btn.disabled = true; btnText.style.display = 'none'; btnLoader.style.display = 'block';
             try {
-                const response = await fetch('/api/register', { method: 'POST', body: new FormData(e.target) });
-                const data = await response.json();
-                msgDiv.className = response.ok ? 'success' : 'error';
-                msgDiv.innerText = t[data.code] || data.message;
-                msgDiv.style.display = 'block';
-                if (response.ok) e.target.reset();
-            } catch (error) {
-                msgDiv.className = 'error'; msgDiv.innerText = t.connError; msgDiv.style.display = 'block';
-            } finally {
-                btn.disabled = false; btnText.style.display = 'block'; btnLoader.style.display = 'none';
+                const res = await fetch('/api/public/server-status');
+                const data = await res.json();
+                if (data.online) {
+                    dot.className = 'status-dot-box online';
+                    text.className = 'status-value online';
+                    text.innerText = t.online || 'Online';
+                } else {
+                    dot.className = 'status-dot-box offline';
+                    text.className = 'status-value offline';
+                    text.innerText = t.offline || 'Offline';
+                }
+            } catch {
+                dot.className = 'status-dot-box offline';
+                text.className = 'status-value offline';
+                text.innerText = t.offline || 'Offline';
             }
-        });
-    </script>
+        }
 
+        async function checkOnlinePlayers() {
+            const text = document.getElementById('indexPlayersText');
+
+            try {
+                const res = await fetch('/api/public/online-players');
+                const data = await res.json();
+                text.innerText = data.playerCount !== null ? data.playerCount : '---';
+            } catch {
+                text.innerText = '---';
+            }
+        }
+
+        checkServerStatus();
+        checkOnlinePlayers();
+        setInterval(checkServerStatus, 30000);
+        setInterval(checkOnlinePlayers, 30000);
+    </script>
 </body>
 
 </html>

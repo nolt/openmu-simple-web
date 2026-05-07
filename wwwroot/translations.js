@@ -23,6 +23,7 @@ window.muTranslations = {
         connError: "Connection error.",
         processing: "Processing...",
         srvStatus: "Server Status",
+        playersOnline: "Online Players",
         online: "Online",
         offline: "Offline",
 
@@ -31,8 +32,19 @@ window.muTranslations = {
         charLvl: "Level",
 
         navStats: "Server Stats",
+        navEvents: "Events",
+        navHome: "Home",
         navChangePass: "Change Password",
         navRegister: "Register Account",
+
+        eventsTitle: "Upcoming Events",
+        eventsRemaining: "remaining",
+        eventsDuration: "Duration",
+        eventsMin: "min",
+        eventsXpMult: "Experience",
+        eventsShow: "Schedule",
+        eventsHide: "Hide",
+        eventsNone: "No events configured.",
 
         // API Error Codes
         RATE_LIMIT_IP: "Limit: 1 account per 24h per IP.",
@@ -74,6 +86,7 @@ window.muTranslations = {
         connError: "Błąd połączenia.",
         processing: "Przetwarzanie...",
         srvStatus: "Status Serwera",
+        playersOnline: "Graczy Online",
         online: "Dostępny",
         offline: "Niedostępny",
 
@@ -82,8 +95,19 @@ window.muTranslations = {
         charLvl: "Poziom",
 
         navStats: "Statystyki Serwera",
+        navEvents: "Wydarzenia",
+        navHome: "Strona Główna",
         navChangePass: "Zmień Hasło",
         navRegister: "Zarejestruj Konto",
+
+        eventsTitle: "Nadchodzące Wydarzenia",
+        eventsRemaining: "pozostało",
+        eventsDuration: "Czas trwania",
+        eventsMin: "min",
+        eventsXpMult: "Doświadczenie",
+        eventsShow: "Harmonogram",
+        eventsHide: "Ukryj",
+        eventsNone: "Brak skonfigurowanych wydarzeń.",
 
         // API Error Codes
         RATE_LIMIT_IP: "Limit 1 konta na 24h dla tego IP.",

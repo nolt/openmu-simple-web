@@ -9,10 +9,13 @@ public static class PasswordEndpoints
 {
     public static void MapPasswordEndpoints(this WebApplication app)
     {
-        app.MapPost("/api/change-password", async (HttpContext context, OpenMuContext db, PasswordRateLimiter rateLimiter, [FromServices] ILogger<Program> logger) =>
+        app.MapPost("/api/change-password", async (HttpContext context, OpenMuContext db, [FromKeyedServices("password")] RateLimiter rateLimiter, [FromServices] ILogger<Program> logger) =>
         {
             try
             {
+                if (!context.Request.Headers.TryGetValue("X-Requested-With", out var v) || v != "XMLHttpRequest")
+                    return Results.Json(new { code = "INVALID_REQUEST" }, statusCode: 400);
+
                 var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
                 if (rateLimiter.IsLimited(ip, 5, TimeSpan.FromMinutes(15)))

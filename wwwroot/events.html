@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenMU - Events</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="translations.js"></script>
+    <style>
+        .event-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            transition: border-color 0.3s;
+        }
+
+        .event-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .event-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .event-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .event-duration {
+            font-size: 0.75rem;
+            color: #888;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .event-countdown {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .countdown-number {
+            font-size: 2.0rem;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+            color: var(--primary);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .countdown-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+
+        .event-timetable-wrap {
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .event-timetable-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            user-select: none;
+            transition: color 0.3s;
+        }
+
+        .event-timetable-toggle:hover {
+            color: var(--primary);
+        }
+
+        .event-timetable-toggle .arrow {
+            font-size: 0.6rem;
+            transition: transform 0.3s;
+        }
+
+        .event-timetable-toggle .arrow.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .event-timetable {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 0.8rem;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .event-timetable.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        .event-time-badge {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #aaa;
+            letter-spacing: 0.5px;
+        }
+
+        .event-time-badge.next {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            font-weight: bold;
+        }
+
+        .event-status {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #2ecc71;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .event-status.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        .event-icon {
+            font-size: 1.3rem;
+            margin-right: 8px;
+        }
+
+        .event-red-dragon .event-name { color: #e74c3c; }
+        .event-red-dragon .countdown-number { color: #e74c3c; text-shadow: 0 0 20px rgba(231, 76, 60, 0.3); }
+        .event-red-dragon .event-time-badge.next { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border-color: rgba(231, 76, 60, 0.3); }
+
+        .event-golden .event-name { color: #ffd700; }
+        .event-golden .countdown-number { color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+        .event-golden .event-time-badge.next { background: rgba(255, 215, 0, 0.15); color: #ffd700; border-color: rgba(255, 215, 0, 0.3); }
+
+        .event-blood-castle .event-name { color: #3498db; }
+        .event-blood-castle .countdown-number { color: #3498db; text-shadow: 0 0 20px rgba(52, 152, 219, 0.3); }
+        .event-blood-castle .event-time-badge.next { background: rgba(52, 152, 219, 0.15); color: #3498db; border-color: rgba(52, 152, 219, 0.3); }
+
+        .event-chaos-castle .event-name { color: #9b59b6; }
+        .event-chaos-castle .countdown-number { color: #9b59b6; text-shadow: 0 0 20px rgba(155, 89, 182, 0.3); }
+        .event-chaos-castle .event-time-badge.next { background: rgba(155, 89, 182, 0.15); color: #9b59b6; border-color: rgba(155, 89, 182, 0.3); }
+
+        .event-devil-square .event-name { color: #1abc9c; }
+        .event-devil-square .countdown-number { color: #1abc9c; text-shadow: 0 0 20px rgba(26, 188, 156, 0.3); }
+        .event-devil-square .event-time-badge.next { background: rgba(26, 188, 156, 0.15); color: #1abc9c; border-color: rgba(26, 188, 156, 0.3); }
+
+        .event-happy-hour .event-name { color: #e84393; }
+        .event-happy-hour .countdown-number { color: #e84393; text-shadow: 0 0 20px rgba(232, 67, 147, 0.3); }
+        .event-happy-hour .event-time-badge.next { background: rgba(232, 67, 147, 0.15); color: #e84393; border-color: rgba(232, 67, 147, 0.3); }
+
+        .event-description {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .event-loader {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body class="stats-body">
+    <div class="container">
+        <div class="lang-switch">
+            <span onclick="setLanguage('en')" id="en-btn">EN</span> |
+            <span onclick="setLanguage('pl')" id="pl-btn">PL</span>
+        </div>
+
+        <h2 data-i18n="eventsTitle">Nadchodzące Wydarzenia</h2>
+
+        <div class="server-status" id="serverStatus">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Checking...</span>
+        </div>
+
+        <div id="eventsContainer">
+            <div class="event-loader">...</div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="/" class="nav-link">
+                <span data-i18n="navHome">Strona Główna</span>
+            </a>
+            <a href="/stats" class="nav-link">
+                <span data-i18n="navStats">Statystyki Serwera</span>
+            </a>
+        </div>
+    </div>
+    <div class="credits">
+        <a href="https://github.com/nolt" target="_blank">
+            <span>&lt;/&gt; with ❤️ by</span> Nolt
+        </a>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            const t = window.muTranslations[lang];
+            localStorage.setItem('preferred-lang', lang);
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerText = t[key];
+            });
+
+            document.getElementById('en-btn').className = lang === 'en' ? 'active' : '';
+            document.getElementById('pl-btn').className = lang === 'pl' ? 'active' : '';
+        }
+
+        setLanguage(localStorage.getItem('preferred-lang') || 'en');
+
+        async function checkServerStatus() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const t = window.muTranslations[localStorage.getItem('preferred-lang') || 'en'];
+
+            try {
+                const response = await fetch('/api/public/server-status');
+                const data = await response.json();
+                if (data.online) {
+                    statusDot.className = 'status-dot online';
+                    statusText.innerText = t.online || 'Online';
+                } else {
+                    statusDot.className = 'status-dot offline';
+                    statusText.innerText = t.offline || 'Offline';
+                }
+            } catch {
+                statusDot.className = 'status-dot offline';
+                statusText.innerText = t.offline || 'Offline';
+            }
+        }
+
+        checkServerStatus();
+        setInterval(checkServerStatus, 30000);
+
+        function formatCountdown(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return String(h).padStart(2, '0') + ':' +
+                   String(m).padStart(2, '0') + ':' +
+                   String(s).padStart(2, '0');
+        }
+
+        const EVENT_STYLES = {
+            'Red Dragon Invasion': { css: 'event-red-dragon', icon: '🐉' },
+            'Golden Invasion': { css: 'event-golden', icon: '👑' },
+            'Blood Castle': { css: 'event-blood-castle', icon: '🏰' },
+            'Chaos Castle': { css: 'event-chaos-castle', icon: '⚡' },
+            'Devil Square': { css: 'event-devil-square', icon: '👹' },
+            'Happy Hour': { css: 'event-happy-hour', icon: '🎉' },
+        };
+
+        function renderEvent(event) {
+            const style = EVENT_STYLES[event.name] || { css: '', icon: '📅' };
+            const lang = localStorage.getItem('preferred-lang') || 'en';
+
+            const countdownSeconds = event.countdownSeconds;
+            const nextTimeStr = event.nextRunUtc ? new Date(event.nextRunUtc).toISOString().slice(11, 16) : null;
+            const timetableHtml = event.timetable.map(t =>
+                `<span class="event-time-badge${t === nextTimeStr ? ' next' : ''}">${t}</span>`
+            ).join('');
+
+            const t = window.muTranslations[lang];
+            const durationLabel = (t.eventsDuration || 'Czas trwania') + ': ' + event.durationMinutes + ' ' + (t.eventsMin || 'min');
+            const showLabel = t.eventsShow || 'Schedule';
+            const hideLabel = t.eventsHide || 'Hide';
+            const storageKey = 'event_collapsed_' + event.name;
+            const stored = localStorage.getItem(storageKey);
+            const isCollapsed = stored !== null ? stored === 'true' : true;
+
+            const descHtml = event.experienceMultiplier
+                ? `<div class="event-description">${(t.eventsXpMult || 'Experience')} x${event.experienceMultiplier.toFixed(1)}</div>`
+                : '';
+
+            return `
+                <div class="event-card ${style.css}" data-event="${event.name}">
+                    <div class="event-header">
+                        <div class="event-name">
+                            <span class="event-icon">${style.icon}</span>
+                            ${event.name}
+                        </div>
+                        <div class="event-duration">${durationLabel}</div>
+                    </div>
+                    ${descHtml}
+                    <div class="event-countdown">
+                        <div class="countdown-number" data-seconds="${countdownSeconds}">
+                            ${formatCountdown(countdownSeconds)}
+                        </div>
+                        <div class="countdown-label" data-i18n="eventsRemaining">${t.eventsRemaining || 'remaining'}</div>
+                    </div>
+                    <div class="event-timetable-wrap">
+                        <div class="event-timetable-toggle" onclick="toggleTimetable(this)">
+                            <span class="arrow${isCollapsed ? ' collapsed' : ''}">▼</span>
+                            <span class="toggle-label">${isCollapsed ? showLabel : hideLabel}</span>
+                        </div>
+                        <div class="event-timetable${isCollapsed ? ' collapsed' : ''}">${timetableHtml}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleTimetable(el) {
+            const wrap = el.closest('.event-timetable-wrap');
+            const timetable = wrap.querySelector('.event-timetable');
+            const arrow = el.querySelector('.arrow');
+            const label = el.querySelector('.toggle-label');
+            const lang = localStorage.getItem('preferred-lang') || 'en';
+            const t = window.muTranslations[lang];
+            const isCollapsed = timetable.classList.toggle('collapsed');
+            arrow.classList.toggle('collapsed', isCollapsed);
+            label.textContent = isCollapsed ? (t.eventsShow || 'Schedule') : (t.eventsHide || 'Hide');
+
+            const card = el.closest('.event-card');
+            if (card) {
+                localStorage.setItem('event_collapsed_' + card.dataset.event, isCollapsed);
+            }
+        }
+
+        function updateCountdowns() {
+            document.querySelectorAll('.countdown-number').forEach(el => {
+                let sec = parseInt(el.getAttribute('data-seconds'));
+                if (sec > 0) {
+                    sec--;
+                    el.setAttribute('data-seconds', sec);
+                    el.innerText = formatCountdown(sec);
+                }
+            });
+        }
+
+        const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Red Dragon Invasion', 'Golden Invasion'];
+
+        async function loadEvents() {
+            const container = document.getElementById('eventsContainer');
+            const lang = localStorage.getItem('preferred-lang') || 'en';
+            const t = window.muTranslations[lang];
+
+            try {
+                const response = await fetch('/api/public/events');
+                if (!response.ok) throw new Error('Failed to load');
+
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:2rem;color:#888;">' + (t.eventsNone || 'No events configured.') + '</div>';
+                    return;
+                }
+
+                data.sort((a, b) => EVENT_ORDER.indexOf(a.name) - EVENT_ORDER.indexOf(b.name));
+
+                container.innerHTML = data.map(renderEvent).join('');
+                setLanguage(lang);
+
+            } catch (error) {
+                container.innerHTML = '<div style="text-align:center;padding:2rem;color:#e74c3c;">' + (t.connError || 'Connection error.') + '</div>';
+            }
+        }
+
+        loadEvents();
+        setInterval(loadEvents, 60000);
+        setInterval(updateCountdowns, 1000);
+    </script>
+</body>
+
+</html>
