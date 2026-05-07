@@ -24,6 +24,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<ConcurrentDictionary<string, DateTime>>(_ => new ConcurrentDictionary<string, DateTime>());
 builder.Services.AddKeyedSingleton<RateLimiter>("password");
 builder.Services.AddKeyedSingleton<RateLimiter>("ranking");
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -84,11 +85,12 @@ app.MapGet("/api/public/server-status", async () =>
     }
 });
 
-app.MapGet("/api/public/online-players", async (ILogger<Program> logger) =>
+app.MapGet("/api/public/online-players", async (ILogger<Program> logger, IHttpClientFactory httpClientFactory) =>
 {
     try
     {
-        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+        using var http = httpClientFactory.CreateClient();
+        http.Timeout = TimeSpan.FromSeconds(3);
         var response = await http.GetStringAsync($"http://{serverHost}:8080/api/status");
         using var doc = JsonDocument.Parse(response);
         var players = doc.RootElement.GetProperty("players").GetInt32();
