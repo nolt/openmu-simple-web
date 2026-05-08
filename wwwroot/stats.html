@@ -97,6 +97,7 @@
 
         async function loadRanking() {
             const rankingBody = document.getElementById('rankingBody');
+            const t = window.muTranslations[localStorage.getItem('preferred-lang') || 'en'];
 
             try {
                 const response = await fetch('/api/public/ranking');
@@ -105,7 +106,7 @@
                 const data = await response.json();
 
                 if (!data || data.length === 0) {
-                    rankingBody.innerHTML = '<tr><td colspan="4" style="text-align:center">No heroes found.</td></tr>';
+                    rankingBody.innerHTML = `<tr><td colspan="4" style="text-align:center">${t.rankingNone}</td></tr>`;
                     return;
                 }
 
@@ -122,7 +123,7 @@
                 `).join('');
 
             } catch (error) {
-                rankingBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #e74c3c;">Connection error.</td></tr>';
+                rankingBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: #e74c3c;">${t.rankingError}</td></tr>`;
             }
         }
 

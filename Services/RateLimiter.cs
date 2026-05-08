@@ -9,19 +9,16 @@ public class RateLimiter
     public bool IsLimited(string key, int maxAttempts, TimeSpan window)
     {
         var now = DateTime.UtcNow;
-        var entry = _store.GetOrAdd(key, _ => (0, now));
+        var (count, _) = _store.AddOrUpdate(key,
+            _ => (1, now),
+            (_, entry) =>
+            {
+                if (now - entry.WindowStart > window)
+                    return (1, now);
+                return (entry.Count + 1, entry.WindowStart);
+            });
 
-        if (now - entry.WindowStart > window)
-        {
-            _store[key] = (1, now);
-            return false;
-        }
-
-        if (entry.Count >= maxAttempts)
-            return true;
-
-        _store[key] = (entry.Count + 1, entry.WindowStart);
-        return false;
+        return count > maxAttempts;
     }
 
     public void Cleanup(DateTime now, TimeSpan expiration)

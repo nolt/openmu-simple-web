@@ -24,6 +24,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<ConcurrentDictionary<string, DateTime>>(_ => new ConcurrentDictionary<string, DateTime>());
 builder.Services.AddKeyedSingleton<RateLimiter>("password");
 builder.Services.AddKeyedSingleton<RateLimiter>("ranking");
+builder.Services.AddKeyedSingleton<RateLimiter>("events");
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
@@ -52,12 +53,14 @@ _ = Task.Run(async () =>
         var ipLimit = app.Services.GetRequiredService<ConcurrentDictionary<string, DateTime>>();
         var passwordLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("password");
         var rankingLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("ranking");
+        var eventsLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("events");
 
         foreach (var key in ipLimit.Keys)
             if (ipLimit[key] < now.AddDays(-1)) ipLimit.TryRemove(key, out _);
 
         passwordLimiter.Cleanup(now, TimeSpan.FromMinutes(15));
         rankingLimiter.Cleanup(now, TimeSpan.FromMinutes(1));
+        eventsLimiter.Cleanup(now, TimeSpan.FromMinutes(1));
     }
 });
 

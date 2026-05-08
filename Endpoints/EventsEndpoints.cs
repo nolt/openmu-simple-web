@@ -21,7 +21,7 @@ public static class EventsEndpoints
 
     public static void MapEventsEndpoints(this WebApplication app)
     {
-        app.MapGet("/api/public/events", async (OpenMuContext db, HttpContext context, [FromKeyedServices("ranking")] RateLimiter rateLimiter, [FromServices] ILogger<Program> logger) =>
+        app.MapGet("/api/public/events", async (OpenMuContext db, HttpContext context, [FromKeyedServices("events")] RateLimiter rateLimiter, [FromServices] ILogger<Program> logger) =>
         {
             try
             {

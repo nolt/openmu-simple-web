@@ -24,6 +24,7 @@ public static class RegistrationEndpoints
                 var form = await context.Request.ReadFormAsync();
                 var username = form["username"].ToString().Trim();
                 var password = form["password"].ToString();
+                var confirmPassword = form["confirmPassword"].ToString();
 
                 if (!System.Text.RegularExpressions.Regex.IsMatch(username, "^[a-zA-Z0-9]{3,10}$"))
                     return Results.Json(new { code = "INVALID_USERNAME", message = "Zły format loginu (3-10 znaków)." }, statusCode: 400);
@@ -31,12 +32,15 @@ public static class RegistrationEndpoints
                 if (password.Length < 8 || password.Length > 16)
                     return Results.Json(new { code = "INVALID_PASSWORD_LENGTH", message = "Hasło musi mieć 8-16 znaków." }, statusCode: 400);
 
+                if (password != confirmPassword)
+                    return Results.Json(new { code = "PASSWORDS_DO_NOT_MATCH", message = "Hasła nie są zgodne." }, statusCode: 400);
+
                 var securityCode = form["securityCode"].ToString();
                 if (!System.Text.RegularExpressions.Regex.IsMatch(securityCode, "^[0-9]{6,10}$"))
                     return Results.Json(new { code = "INVALID_SECURITY_CODE", message = "Kod bezpieczeństwa musi zawierać 6-10 cyfr." }, statusCode: 400);
 
                 var email = form["email"].ToString().Trim();
-                if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                if (!System.Net.Mail.MailAddress.TryCreate(email, out _))
                     return Results.Json(new { code = "INVALID_EMAIL", message = "Nieprawidłowy format email." }, statusCode: 400);
 
                 if (await db.Accounts.AnyAsync(a => a.LoginName == username))

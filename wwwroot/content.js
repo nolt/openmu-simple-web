@@ -1,7 +1,8 @@
 window.muContent = {
     en: {
         welcomeTitle: "Welcome to OpenMU",
-        welcomeText: "OpenMU is a free and open-source server emulator for MU Online. Experience the game with custom features, active development, and a friendly community.",
+        welcomeText: `OpenMU is a free and open-source server emulator for MU Online.
+Experience the game with custom features, active development, and a friendly community.`,
         rows: [
             [
                 { label: "Experience", value: "x50" },
@@ -28,7 +29,8 @@ window.muContent = {
     },
     pl: {
         welcomeTitle: "Witaj na OpenMU",
-        welcomeText: "OpenMU to darmowy emulator serwera MU Online. Graj z customowymi funkcjami, aktywnym rozwojem i przyjazną społecznością.",
+        welcomeText: `OpenMU to darmowy emulator serwera MU Online.
+Graj z customowymi funkcjami, aktywnym rozwojem i przyjazną społecznością.`,
         rows: [
             [
                 { label: "Doświadczenie", value: "x50" },

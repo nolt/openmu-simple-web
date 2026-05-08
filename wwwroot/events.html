@@ -66,54 +66,46 @@
             margin-top: 4px;
         }
 
-        .event-timetable-wrap {
-            margin-top: 0.8rem;
-            padding-top: 0.8rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .event-timetable-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            user-select: none;
-            transition: color 0.3s;
-        }
-
-        .event-timetable-toggle:hover {
-            color: var(--primary);
-        }
-
-        .event-timetable-toggle .arrow {
-            font-size: 0.6rem;
-            transition: transform 0.3s;
-        }
-
-        .event-timetable-toggle .arrow.collapsed {
-            transform: rotate(-90deg);
-        }
-
         .event-timetable {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             justify-content: center;
-            margin-top: 0.8rem;
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
         }
 
-        .event-timetable.collapsed {
-            max-height: 0 !important;
-            opacity: 0;
-            margin-top: 0;
-            padding-top: 0;
+        .event-body {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .event-left {
+            flex: 0 0 220px;
+            text-align: center;
+        }
+
+        .event-right {
+            flex: 1;
+            min-width: 0;
+            padding-left: 1.5rem;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .event-body {
+                flex-direction: column;
+            }
+            .event-left {
+                flex: none;
+            }
+            .event-right {
+                border-left: none;
+                padding-left: 0;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                width: 100%;
+            }
         }
 
         .event-time-badge {
@@ -173,6 +165,7 @@
         .event-happy-hour .event-name { color: #e84393; }
         .event-happy-hour .countdown-number { color: #e84393; text-shadow: 0 0 20px rgba(232, 67, 147, 0.3); }
         .event-happy-hour .event-time-badge.next { background: rgba(232, 67, 147, 0.15); color: #e84393; border-color: rgba(232, 67, 147, 0.3); }
+        .event-happy-hour .event-description { font-weight: bold; }
 
         .event-description {
             text-align: center;
@@ -295,11 +288,6 @@
 
             const t = window.muTranslations[lang];
             const durationLabel = (t.eventsDuration || 'Czas trwania') + ': ' + event.durationMinutes + ' ' + (t.eventsMin || 'min');
-            const showLabel = t.eventsShow || 'Schedule';
-            const hideLabel = t.eventsHide || 'Hide';
-            const storageKey = 'event_collapsed_' + event.name;
-            const stored = localStorage.getItem(storageKey);
-            const isCollapsed = stored !== null ? stored === 'true' : true;
 
             const descHtml = event.experienceMultiplier
                 ? `<div class="event-description">${(t.eventsXpMult || 'Experience')} x${event.experienceMultiplier.toFixed(1)}</div>`
@@ -315,38 +303,21 @@
                         <div class="event-duration">${durationLabel}</div>
                     </div>
                     ${descHtml}
-                    <div class="event-countdown">
-                        <div class="countdown-number" data-seconds="${countdownSeconds}">
-                            ${formatCountdown(countdownSeconds)}
+                    <div class="event-body">
+                        <div class="event-left">
+                            <div class="event-countdown">
+                                <div class="countdown-number" data-seconds="${countdownSeconds}">
+                                    ${formatCountdown(countdownSeconds)}
+                                </div>
+                                <div class="countdown-label" data-i18n="eventsRemaining">${t.eventsRemaining || 'remaining'}</div>
+                            </div>
                         </div>
-                        <div class="countdown-label" data-i18n="eventsRemaining">${t.eventsRemaining || 'remaining'}</div>
-                    </div>
-                    <div class="event-timetable-wrap">
-                        <div class="event-timetable-toggle" onclick="toggleTimetable(this)">
-                            <span class="arrow${isCollapsed ? ' collapsed' : ''}">▼</span>
-                            <span class="toggle-label">${isCollapsed ? showLabel : hideLabel}</span>
+                        <div class="event-right">
+                            <div class="event-timetable">${timetableHtml}</div>
                         </div>
-                        <div class="event-timetable${isCollapsed ? ' collapsed' : ''}">${timetableHtml}</div>
                     </div>
                 </div>
             `;
-        }
-
-        function toggleTimetable(el) {
-            const wrap = el.closest('.event-timetable-wrap');
-            const timetable = wrap.querySelector('.event-timetable');
-            const arrow = el.querySelector('.arrow');
-            const label = el.querySelector('.toggle-label');
-            const lang = localStorage.getItem('preferred-lang') || 'en';
-            const t = window.muTranslations[lang];
-            const isCollapsed = timetable.classList.toggle('collapsed');
-            arrow.classList.toggle('collapsed', isCollapsed);
-            label.textContent = isCollapsed ? (t.eventsShow || 'Schedule') : (t.eventsHide || 'Hide');
-
-            const card = el.closest('.event-card');
-            if (card) {
-                localStorage.setItem('event_collapsed_' + card.dataset.event, isCollapsed);
-            }
         }
 
         function updateCountdowns() {

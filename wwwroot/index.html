@@ -29,6 +29,16 @@
             flex-direction: column;
             gap: 1rem;
             margin-top: 2rem;
+            position: relative;
+        }
+        .index-left::after {
+            content: "";
+            position: absolute;
+            right: -1.25rem;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .index-right {
@@ -69,6 +79,7 @@
             font-size: 0.9rem;
             line-height: 1.7;
             color: #ccc;
+            white-space: pre-line;
         }
 
         .details-list {

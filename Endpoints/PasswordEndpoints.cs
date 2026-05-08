@@ -26,6 +26,9 @@ public static class PasswordEndpoints
                 var oldPassword = form["oldPassword"].ToString();
                 var newPassword = form["newPassword"].ToString();
 
+                if (string.IsNullOrEmpty(oldPassword))
+                    return Results.Json(new { code = "INVALID_OLD_PASSWORD", message = "Obecne hasło jest nieprawidłowe." }, statusCode: 401);
+
                 var account = await db.Accounts.FirstOrDefaultAsync(a => a.LoginName == username);
                 if (account == null)
                     return Results.Json(new { code = "USER_NOT_FOUND", message = "Użytkownik nie istnieje." }, statusCode: 404);
