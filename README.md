@@ -100,3 +100,5 @@ https://github.com/MUnique/OpenMU
 4. **Done**
    The language switcher in the top-right corner automatically picks up all languages that exist in `window.muTranslations`. No other changes needed.
 
+---
+![Website](assets/example.webp)
