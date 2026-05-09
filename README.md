@@ -21,57 +21,11 @@ Website is multilanguage English and Polish.
 - clone this repository
 - replace values in .env to your own
 - build
----
-
-## Adding a new language
-
-1. **Create a translation file**
-   - Copy `wwwroot/translate.js` and rename it to your language code, e.g. `de.js` for German.
-   - Replace `XX` on line 2 with your language code, e.g. `de`.
-   - Fill in all empty strings with your translations.
-
-2. **Add the script to each HTML file**
-   In each of these 5 files, add a `<script>` tag for your new language AFTER `en.js` and BEFORE `pl.js`:
-   - `wwwroot/index.html`
-   - `wwwroot/register.html`
-   - `wwwroot/changepass.html`
-   - `wwwroot/stats.html`
-   - `wwwroot/events.html`
-
-   Example (for German, `de.js`):
-   ```html
-   <script src="en.js"></script>
-   <script src="de.js"></script>
-   <script src="pl.js"></script>
-   ```
-
-3. **Update content.js (optional)**
-   If you also want the homepage text and server info translated, add your language section to the `window.muContent` object in `wwwroot/content.js`, following the same pattern as `en` and `pl`.
-
-4. **Done**
-   The language switcher in the top-right corner automatically picks up all languages that exist in `window.muTranslations`. No other changes needed.
-
-
 
 Build your service:
 
 ```docker compose up -d --build```
 
-Images:
-
-![Main page](assets/mainreg.jpg)
-
-![Change pass](assets/resetpass.jpg)
-
-![Stats](assets/top10.jpg)
-
----
-
-
-
-More info about OpenMU project you will find here:
-https://github.com/MUnique/OpenMU
-
 ## Adding a new language
 
 1. **Create a translation file**
@@ -101,4 +55,9 @@ https://github.com/MUnique/OpenMU
    The language switcher in the top-right corner automatically picks up all languages that exist in `window.muTranslations`. No other changes needed.
 
 ---
+Example:
 ![Website](assets/example.webp)
+---
+More info about OpenMU project you will find here:
+https://github.com/MUnique/OpenMU
+
