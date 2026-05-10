@@ -48,6 +48,7 @@ window.muTranslations.pl = {
     eventsHide: "Ukryj",
     eventsNone: "Brak skonfigurowanych wydarzeń.",
 
+    INVALID_REQUEST: "Nieprawidłowe żądanie.",
     RATE_LIMIT_IP: "Limit 1 konta na 24h dla tego IP.",
     INVALID_USERNAME: "Zły format loginu (3-10 znaków, tylko litery i cyfry).",
     INVALID_PASSWORD_LENGTH: "Hasło musi mieć 8-16 znaków.",

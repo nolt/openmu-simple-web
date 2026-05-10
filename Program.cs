@@ -106,5 +106,4 @@ app.MapGet("/api/public/online-players", async (ILogger<Program> logger, IHttpCl
     }
 });
 
-app.MapControllers();
 app.Run();

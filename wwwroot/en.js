@@ -48,6 +48,7 @@ window.muTranslations.en = {
     eventsHide: "Hide",
     eventsNone: "No events configured.",
 
+    INVALID_REQUEST: "Invalid request.",
     RATE_LIMIT_IP: "Limit: 1 account per 24h per IP.",
     INVALID_USERNAME: "Invalid username format (3-10 characters, letters and numbers only).",
     INVALID_PASSWORD_LENGTH: "Password must be 8-16 characters long.",

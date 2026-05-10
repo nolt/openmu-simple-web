@@ -19,7 +19,7 @@ public static class PasswordEndpoints
                 var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
                 if (rateLimiter.IsLimited(ip, 5, TimeSpan.FromMinutes(15)))
-                    return Results.Json(new { code = "RATE_LIMIT_PASSWORD", message = "Zbyt wiele prób. Spróbuj ponownie za 15 minut." }, statusCode: 429);
+                    return Results.Json(new { code = "RATE_LIMIT_PASSWORD", message = "Too many attempts. Try again in 15 minutes." }, statusCode: 429);
 
                 var form = await context.Request.ReadFormAsync();
                 var username = form["username"].ToString().Trim();
@@ -27,27 +27,27 @@ public static class PasswordEndpoints
                 var newPassword = form["newPassword"].ToString();
 
                 if (string.IsNullOrEmpty(oldPassword))
-                    return Results.Json(new { code = "INVALID_OLD_PASSWORD", message = "Obecne hasło jest nieprawidłowe." }, statusCode: 401);
+                    return Results.Json(new { code = "INVALID_OLD_PASSWORD", message = "Current password is incorrect." }, statusCode: 401);
 
                 var account = await db.Accounts.FirstOrDefaultAsync(a => a.LoginName == username);
                 if (account == null)
-                    return Results.Json(new { code = "USER_NOT_FOUND", message = "Użytkownik nie istnieje." }, statusCode: 404);
+                    return Results.Json(new { code = "USER_NOT_FOUND", message = "User not found." }, statusCode: 404);
 
                 if (!BCrypt.Net.BCrypt.Verify(oldPassword, account.PasswordHash))
-                    return Results.Json(new { code = "INVALID_OLD_PASSWORD", message = "Obecne hasło jest nieprawidłowe." }, statusCode: 401);
+                    return Results.Json(new { code = "INVALID_OLD_PASSWORD", message = "Current password is incorrect." }, statusCode: 401);
 
                 if (newPassword.Length < 8 || newPassword.Length > 16)
-                    return Results.Json(new { code = "INVALID_PASSWORD_LENGTH", message = "Nowe hasło musi mieć od 8 do 16 znaków." }, statusCode: 400);
+                    return Results.Json(new { code = "INVALID_PASSWORD_LENGTH", message = "New password must be 8-16 characters." }, statusCode: 400);
 
                 account.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
                 await db.SaveChangesAsync();
 
-                return Results.Json(new { code = "PASSWORD_CHANGE_SUCCESS", message = "Hasło zostało zmienione!" });
+                    return Results.Json(new { code = "PASSWORD_CHANGE_SUCCESS", message = "Password changed successfully!" });
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error during password change");
-                return Results.Json(new { code = "SERVER_ERROR", message = "Nie udało się zmienić hasła." }, statusCode: 500);
+                    return Results.Json(new { code = "SERVER_ERROR", message = "Failed to change password." }, statusCode: 500);
             }
         });
     }

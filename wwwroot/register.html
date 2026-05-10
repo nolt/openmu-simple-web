@@ -84,7 +84,9 @@
 
             btn.disabled = true; btnText.style.display = 'none'; btnLoader.style.display = 'block';
             try {
-                const response = await fetch('/api/register', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: new FormData(e.target) });
+                const formData = new FormData(e.target);
+                formData.append('language', localStorage.getItem('preferred-lang') || 'en');
+                const response = await fetch('/api/register', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: formData });
                 const data = await response.json();
                 msgDiv.className = response.ok ? 'success' : 'error';
                 msgDiv.innerText = t[data.code] || data.message;
