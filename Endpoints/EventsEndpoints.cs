@@ -42,7 +42,9 @@ public static class EventsEndpoints
                 var connection = db.Database.GetDbConnection();
                 if (connection.State != ConnectionState.Open) await connection.OpenAsync();
 
-                var now = DateTime.UtcNow;
+                var tz = TimeZoneInfo.Local;
+                var nowUtc = DateTime.UtcNow;
+                var nowLocal = TimeZoneInfo.ConvertTime(nowUtc, tz);
                 var result = new List<object>();
 
                 using (var command = connection.CreateCommand())
@@ -82,8 +84,8 @@ public static class EventsEndpoints
                             TimeOnly? nextTime = null;
                             foreach (var t in timetable)
                             {
-                                var candidate = new DateTime(now.Year, now.Month, now.Day, t.Hour, t.Minute, t.Second, DateTimeKind.Utc);
-                                if (candidate > now)
+                                var candidate = new DateTime(nowLocal.Year, nowLocal.Month, nowLocal.Day, t.Hour, t.Minute, t.Second);
+                                if (candidate > nowLocal)
                                 {
                                     nextTime = t;
                                     break;
@@ -92,17 +94,20 @@ public static class EventsEndpoints
 
                             nextTime ??= timetable.First();
 
-                            var nextDate = new DateTime(now.Year, now.Month, now.Day, nextTime.Value.Hour, nextTime.Value.Minute, nextTime.Value.Second, DateTimeKind.Utc);
-                            if (nextDate <= now)
-                                nextDate = nextDate.AddDays(1);
+                            var nextLocalDate = new DateTime(nowLocal.Year, nowLocal.Month, nowLocal.Day, nextTime.Value.Hour, nextTime.Value.Minute, nextTime.Value.Second);
+                            if (nextLocalDate <= nowLocal)
+                                nextLocalDate = nextLocalDate.AddDays(1);
+
+                            var nextUtcDate = TimeZoneInfo.ConvertTimeToUtc(nextLocalDate, tz);
 
                             result.Add(new
                             {
                                 name = EventNames.GetValueOrDefault(typeId, "Unknown Event"),
-                                nextRunUtc = nextDate.ToString("o"),
-                                countdownSeconds = (int)(nextDate - now).TotalSeconds,
+                                nextRunUtc = nextUtcDate.ToString("o"),
+                                countdownSeconds = (int)(nextUtcDate - nowUtc).TotalSeconds,
                                 durationMinutes = (int)duration.TotalMinutes,
                                 timetable = timetable.Select(t => t.ToString("HH:mm")).ToList(),
+                                nextRunLocal = nextTime.Value.ToString("HH:mm"),
                                 experienceMultiplier = doc.RootElement.TryGetProperty("ExperienceMultiplier", out var exp) ? exp.GetSingle() : (float?)null,
                             });
                         }

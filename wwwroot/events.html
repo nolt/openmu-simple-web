@@ -282,7 +282,7 @@
             const lang = localStorage.getItem('preferred-lang') || 'en';
 
             const countdownSeconds = event.countdownSeconds;
-            const nextTimeStr = event.nextRunUtc ? new Date(event.nextRunUtc).toISOString().slice(11, 16) : null;
+            const nextTimeStr = event.nextRunLocal || null;
             const timetableHtml = event.timetable.map(t =>
                 `<span class="event-time-badge${t === nextTimeStr ? ' next' : ''}">${t}</span>`
             ).join('');
