@@ -29,7 +29,7 @@ Build your service:
 ## Adding a new language
 
 1. **Create a translation file**
-   - Copy `wwwroot/translate.js` and rename it to your language code, e.g. `de.js` for German.
+   - Copy `wwwroot/template_lang.js` and rename it to your language code, e.g. `de.js` for German.
    - Replace `XX` on line 2 with your language code, e.g. `de`.
    - Fill in all empty strings with your translations.
 
