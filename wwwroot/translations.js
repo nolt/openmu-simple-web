@@ -7,6 +7,7 @@ window.muTranslations = {
         login: "Login",
         email: "Email",
         pass: "Password",
+        confirmPass: "Confirm Password",
         oldPass: "Current Password",
         newPass: "New Password",
         pin: "Security Code (PIN)",
@@ -18,11 +19,13 @@ window.muTranslations = {
         placeholderLogin: "Account name",
         placeholderEmail: "your@email.com",
         placeholderPass: "********",
+        placeholderConfirmPass: "Repeat password",
         placeholderPin: "Security code",
 
         connError: "Connection error.",
         processing: "Processing...",
         srvStatus: "Server Status",
+        playersOnline: "Online Players",
         online: "Online",
         offline: "Offline",
 
@@ -31,8 +34,19 @@ window.muTranslations = {
         charLvl: "Level",
 
         navStats: "Server Stats",
+        navEvents: "Events",
+        navHome: "Home",
         navChangePass: "Change Password",
         navRegister: "Register Account",
+
+        eventsTitle: "Upcoming Events",
+        eventsRemaining: "remaining",
+        eventsDuration: "Duration",
+        eventsMin: "min",
+        eventsXpMult: "Experience",
+        eventsShow: "Schedule",
+        eventsHide: "Hide",
+        eventsNone: "No events configured.",
 
         // API Error Codes
         RATE_LIMIT_IP: "Limit: 1 account per 24h per IP.",
@@ -41,6 +55,7 @@ window.muTranslations = {
         INVALID_SECURITY_CODE: "Security code must contain 6-10 digits.",
         INVALID_EMAIL: "Invalid email format.",
         USERNAME_TAKEN: "Username is already taken.",
+        PASSWORDS_DO_NOT_MATCH: "Passwords do not match.",
         REGISTRATION_SUCCESS: "Account created successfully!",
         RATE_LIMIT_PASSWORD: "Too many attempts. Try again in 15 minutes.",
         USER_NOT_FOUND: "User does not exist.",
@@ -48,7 +63,9 @@ window.muTranslations = {
         PASSWORD_CHANGE_SUCCESS: "Password changed successfully!",
         RATE_LIMIT_RANKING: "Too many requests. Try again later.",
         DATABASE_ERROR: "Database error. Please try again later.",
-        SERVER_ERROR: "An unexpected server error occurred."
+        SERVER_ERROR: "An unexpected server error occurred.",
+        rankingNone: "No heroes found.",
+        rankingError: "Connection error."
     },
     pl: {
         title: "Rejestracja OpenMU",
@@ -58,6 +75,7 @@ window.muTranslations = {
         login: "Login",
         email: "Email",
         pass: "Hasło",
+        confirmPass: "Potwierdź Hasło",
         oldPass: "Obecne Hasło",
         newPass: "Nowe Hasło",
         pin: "Kod Bezpieczeństwa (PIN)",
@@ -69,11 +87,13 @@ window.muTranslations = {
         placeholderLogin: "Nazwa konta",
         placeholderEmail: "twoj@email.pl",
         placeholderPass: "********",
+        placeholderConfirmPass: "Powtórz hasło",
         placeholderPin: "Kod bezpieczeństwa",
 
         connError: "Błąd połączenia.",
         processing: "Przetwarzanie...",
         srvStatus: "Status Serwera",
+        playersOnline: "Graczy Online",
         online: "Dostępny",
         offline: "Niedostępny",
 
@@ -82,8 +102,19 @@ window.muTranslations = {
         charLvl: "Poziom",
 
         navStats: "Statystyki Serwera",
+        navEvents: "Wydarzenia",
+        navHome: "Strona Główna",
         navChangePass: "Zmień Hasło",
         navRegister: "Zarejestruj Konto",
+
+        eventsTitle: "Nadchodzące Wydarzenia",
+        eventsRemaining: "pozostało",
+        eventsDuration: "Czas trwania",
+        eventsMin: "min",
+        eventsXpMult: "Doświadczenie",
+        eventsShow: "Harmonogram",
+        eventsHide: "Ukryj",
+        eventsNone: "Brak skonfigurowanych wydarzeń.",
 
         // API Error Codes
         RATE_LIMIT_IP: "Limit 1 konta na 24h dla tego IP.",
@@ -92,6 +123,7 @@ window.muTranslations = {
         INVALID_SECURITY_CODE: "Kod bezpieczeństwa musi zawierać 6-10 cyfr.",
         INVALID_EMAIL: "Nieprawidłowy format email.",
         USERNAME_TAKEN: "Login jest już zajęty.",
+        PASSWORDS_DO_NOT_MATCH: "Hasła nie są zgodne.",
         REGISTRATION_SUCCESS: "Konto utworzone pomyślnie!",
         RATE_LIMIT_PASSWORD: "Zbyt wiele prób. Spróbuj ponownie za 15 minut.",
         USER_NOT_FOUND: "Użytkownik nie istnieje.",
@@ -99,6 +131,8 @@ window.muTranslations = {
         PASSWORD_CHANGE_SUCCESS: "Hasło zostało zmienione!",
         RATE_LIMIT_RANKING: "Zbyt wiele zapytań. Spróbuj ponownie później.",
         DATABASE_ERROR: "Błąd bazy danych. Spróbuj ponownie później.",
-        SERVER_ERROR: "Wystąpił nieoczekiwany błąd serwera."
+        SERVER_ERROR: "Wystąpił nieoczekiwany błąd serwera.",
+        rankingNone: "Brak bohaterów.",
+        rankingError: "Błąd połączenia."
     }
 };

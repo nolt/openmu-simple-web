@@ -10,14 +10,14 @@ public static class RankingEndpoints
 {
     public static void MapRankingEndpoints(this WebApplication app)
     {
-        app.MapGet("/api/public/ranking", async (OpenMuContext db, HttpContext context, RankingRateLimiter rateLimiter, [FromServices] ILogger<Program> logger) =>
+        app.MapGet("/api/public/ranking", async (OpenMuContext db, HttpContext context, [FromKeyedServices("ranking")] RateLimiter rateLimiter, [FromServices] ILogger<Program> logger) =>
         {
             try
             {
                 var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
                 if (rateLimiter.IsLimited(ip, 30, TimeSpan.FromMinutes(1)))
-                    return Results.Json(new { code = "RATE_LIMIT_RANKING", message = "Zbyt wiele zapytań. Spróbuj ponownie za chwilę." }, statusCode: 429);
+                    return Results.Json(new { code = "RATE_LIMIT_RANKING", message = "Too many requests. Try again later." }, statusCode: 429);
 
                 var sql = @"
                     SELECT
@@ -67,7 +67,7 @@ public static class RankingEndpoints
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error fetching ranking");
-                return Results.Json(new { code = "DATABASE_ERROR", message = "Błąd bazy danych. Spróbuj ponownie później." }, statusCode: 500);
+                    return Results.Json(new { code = "DATABASE_ERROR", message = "Database error. Please try again later." }, statusCode: 500);
             }
         });
     }

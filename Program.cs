@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using OpenMU_Web.Data;
 using OpenMU_Web.Endpoints;
 using OpenMU_Web.Services;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -21,8 +22,10 @@ builder.Services.AddCors(options =>
 
 // Rate limiting stores
 builder.Services.AddSingleton<ConcurrentDictionary<string, DateTime>>(_ => new ConcurrentDictionary<string, DateTime>());
-builder.Services.AddSingleton<PasswordRateLimiter>();
-builder.Services.AddSingleton<RankingRateLimiter>();
+builder.Services.AddKeyedSingleton<RateLimiter>("password");
+builder.Services.AddKeyedSingleton<RateLimiter>("ranking");
+builder.Services.AddKeyedSingleton<RateLimiter>("events");
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -31,6 +34,8 @@ app.UseCors("AllowAll");
 // --- 1. REDIRECTIONS (SEO and Friendly URLs) ---
 var rewriteOptions = new RewriteOptions()
     .AddRewrite("^changepass$", "changepass.html", skipRemainingRules: true)
+    .AddRewrite("^register$", "register.html", skipRemainingRules: true)
+    .AddRewrite("^events$", "events.html", skipRemainingRules: true)
     .AddRewrite("^stats$", "stats.html", skipRemainingRules: true)
     .AddRewrite("^$", "index.html", skipRemainingRules: true);
 
@@ -46,14 +51,16 @@ _ = Task.Run(async () =>
     {
         var now = DateTime.UtcNow;
         var ipLimit = app.Services.GetRequiredService<ConcurrentDictionary<string, DateTime>>();
-        var passwordLimiter = app.Services.GetRequiredService<PasswordRateLimiter>();
-        var rankingLimiter = app.Services.GetRequiredService<RankingRateLimiter>();
+        var passwordLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("password");
+        var rankingLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("ranking");
+        var eventsLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("events");
 
         foreach (var key in ipLimit.Keys)
             if (ipLimit[key] < now.AddDays(-1)) ipLimit.TryRemove(key, out _);
 
-        passwordLimiter.Cleanup(now);
-        rankingLimiter.Cleanup(now);
+        passwordLimiter.Cleanup(now, TimeSpan.FromMinutes(15));
+        rankingLimiter.Cleanup(now, TimeSpan.FromMinutes(1));
+        eventsLimiter.Cleanup(now, TimeSpan.FromMinutes(1));
     }
 });
 
@@ -61,6 +68,7 @@ _ = Task.Run(async () =>
 app.MapRegistrationEndpoints();
 app.MapPasswordEndpoints();
 app.MapRankingEndpoints();
+app.MapEventsEndpoints();
 
 var serverCheckConfig = builder.Configuration.GetSection("ServerCheck");
 var serverHost = serverCheckConfig["Host"] ?? "openmu-server";
@@ -80,5 +88,22 @@ app.MapGet("/api/public/server-status", async () =>
     }
 });
 
-app.MapControllers();
+app.MapGet("/api/public/online-players", async (ILogger<Program> logger, IHttpClientFactory httpClientFactory) =>
+{
+    try
+    {
+        using var http = httpClientFactory.CreateClient();
+        http.Timeout = TimeSpan.FromSeconds(3);
+        var response = await http.GetStringAsync($"http://{serverHost}:8080/api/status");
+        using var doc = JsonDocument.Parse(response);
+        var players = doc.RootElement.GetProperty("players").GetInt32();
+        return Results.Json(new { playerCount = players });
+    }
+    catch (Exception ex)
+    {
+        logger.LogDebug(ex, "Failed to fetch player count");
+        return Results.Json(new { playerCount = (int?)null });
+    }
+});
+
 app.Run();

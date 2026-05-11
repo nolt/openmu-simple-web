@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenMU - Server Statistics</title>
     <link rel="stylesheet" href="style.css">
-    <script src="translations.js"></script>
+    <script src="en.js"></script>
+    <script src="pl.js"></script>
 </head>
 
 <body class="stats-body">
@@ -41,10 +42,10 @@
 
         <div class="footer-nav">
             <a href="/" class="nav-link">
-                <span data-i18n="navRegister">Register Account</span>
+                <span data-i18n="navHome">Strona Główna</span>
             </a>
-            <a href="/changepass" class="nav-link">
-                <span data-i18n="navChangePass">Change Password</span>
+            <a href="/events" class="nav-link">
+                <span data-i18n="navEvents">Wydarzenia</span>
             </a>
         </div>
     </div>
@@ -97,6 +98,7 @@
 
         async function loadRanking() {
             const rankingBody = document.getElementById('rankingBody');
+            const t = window.muTranslations[localStorage.getItem('preferred-lang') || 'en'];
 
             try {
                 const response = await fetch('/api/public/ranking');
@@ -105,7 +107,7 @@
                 const data = await response.json();
 
                 if (!data || data.length === 0) {
-                    rankingBody.innerHTML = '<tr><td colspan="4" style="text-align:center">No heroes found.</td></tr>';
+                    rankingBody.innerHTML = `<tr><td colspan="4" style="text-align:center">${t.rankingNone}</td></tr>`;
                     return;
                 }
 
@@ -122,7 +124,7 @@
                 `).join('');
 
             } catch (error) {
-                rankingBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #e74c3c;">Connection error.</td></tr>';
+                rankingBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: #e74c3c;">${t.rankingError}</td></tr>`;
             }
         }
 
