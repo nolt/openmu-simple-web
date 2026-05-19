@@ -32,6 +32,7 @@ window.muTranslations.pl = {
     charName: "Postać",
     charClass: "Klasa",
     charLvl: "Poziom",
+    charMl: "Master Level",
 
     navStats: "Statystyki Serwera",
     navEvents: "Wydarzenia",

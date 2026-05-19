@@ -156,6 +156,15 @@ button:hover {
     color: #d4af37;
 }
 
+.master-level {
+    text-align: center;
+}
+
+td.master-level {
+    color: #8b0000;
+    font-weight: bold;
+}
+
 /* === LOADER SPINNER === */
 .spinner-loader {
     display: none;

@@ -32,6 +32,7 @@ window.muTranslations.XX = {
     charName: "",
     charClass: "",
     charLvl: "",
+    charMl: "",
 
     navStats: "",
     navEvents: "",

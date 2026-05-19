@@ -32,6 +32,7 @@ window.muTranslations = {
         charName: "Character",
         charClass: "Class",
         charLvl: "Level",
+        charMl: "Master Level",
 
         navStats: "Server Stats",
         navEvents: "Events",
@@ -100,6 +101,7 @@ window.muTranslations = {
         charName: "Postać",
         charClass: "Klasa",
         charLvl: "Poziom",
+        charMl: "Master Level",
 
         navStats: "Statystyki Serwera",
         navEvents: "Wydarzenia",
