@@ -47,9 +47,6 @@ public static class RegistrationEndpoints
                     return Results.Json(new { code = "USERNAME_TAKEN", message = "Username is already taken." }, statusCode: 400);
 
                 var newVault = new ItemStorage { Id = Guid.NewGuid(), Money = 0 };
-                db.ItemStorages.Add(newVault);
-                await db.SaveChangesAsync();
-
                 var account = new Account
                 {
                     Id = Guid.NewGuid(),
@@ -63,11 +60,27 @@ public static class RegistrationEndpoints
                     State = 0
                 };
 
-                db.Accounts.Add(account);
+                // OpenMU's DB rejects inserting the vault and the account in a single
+                // SaveChanges, so they go in sequence (vault first, for the FK). Wrapping
+                // both in one transaction keeps that order but makes them atomic: if the
+                // account insert fails (e.g. a race on the unique login), both roll back
+                // and no orphan vault is left behind.
+                await using var tx = await db.Database.BeginTransactionAsync();
+                db.ItemStorages.Add(newVault);
                 await db.SaveChangesAsync();
+                db.Accounts.Add(account);
+                try
+                {
+                    await db.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    return Results.Json(new { code = "USERNAME_TAKEN", message = "Username is already taken." }, statusCode: 400);
+                }
+                await tx.CommitAsync();
 
                 ipLimit[remoteIp] = DateTime.UtcNow;
-                    return Results.Json(new { code = "REGISTRATION_SUCCESS", message = "Account created successfully!" });
+                return Results.Json(new { code = "REGISTRATION_SUCCESS", message = "Account created successfully!" });
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-noble AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
 COPY ["OpenMU_Web.csproj", "./"]
@@ -7,24 +7,22 @@ RUN dotnet restore "OpenMU_Web.csproj"
 COPY . .
 RUN dotnet publish "OpenMU_Web.csproj" -c Release -o /app/publish
 
-FROM ubuntu:24.04
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    dotnet-runtime-8.0 \
-    aspnetcore-runtime-8.0 \
-    tzdata \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# tzdata so the TZ env var resolves real zones (e.g. Europe/Warsaw); icu-libs for
+# full globalization, matching the previous Ubuntu image's behaviour.
+RUN apk add --no-cache tzdata icu-libs
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 COPY --from=build /app/publish .
 
-RUN chown -R ubuntu:ubuntu /app/
-USER ubuntu
+USER app
 
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD bash -c 'exec 3<>/dev/tcp/localhost/8080' || exit 1
+  CMD wget -qO- http://localhost:8080/ >/dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["dotnet", "OpenMU_Web.dll"]

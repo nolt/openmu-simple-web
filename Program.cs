@@ -10,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // --- SERVICES ---
-builder.Services.AddControllers();
 builder.Services.AddDbContext<OpenMuContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddCors(options =>
 {
