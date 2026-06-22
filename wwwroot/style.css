@@ -5,16 +5,22 @@
 }
 
 /* === BASE === */
+html {
+    overflow-x: hidden;   /* belt-and-suspenders: no horizontal pan/zoom on mobile */
+}
+
 body {
     margin: 0;
     padding: 2rem 0;
     min-height: 100vh;
     box-sizing: border-box;
+    overflow-x: hidden;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: "Liberation Sans", Arial, sans-serif;
     color: var(--text);
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('mubg.jpg') no-repeat center center fixed;
     background-size: cover;
@@ -156,15 +162,6 @@ button:hover {
     color: #d4af37;
 }
 
-.master-level {
-    text-align: center;
-}
-
-td.master-level {
-    color: #8b0000;
-    font-weight: bold;
-}
-
 /* === LOADER SPINNER === */
 .spinner-loader {
     display: none;
@@ -188,6 +185,7 @@ td.master-level {
     padding-top: 2rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 15px;
 }
@@ -270,6 +268,15 @@ td {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.master-level {
+    text-align: center;
+}
+
+td.master-level {
+    color: #8b0000;
+    font-weight: bold;
+}
+
 tr:hover {
     background: rgba(255, 255, 255, 0.03);
 }
@@ -305,9 +312,13 @@ tr:nth-child(1) .char-name {
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
-tr:nth-child(1) .reset-badge {
+/* characters who reached the server reset cap (muConfig.maxResets) get a glowing
+   reset badge — rank #1 is marked separately by its gold character name */
+.reset-badge.max-reset {
     background: rgba(255, 215, 0, 0.25);
     border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.45);
 }
 
 .table-loader {
@@ -356,4 +367,275 @@ tr:nth-child(1) .reset-badge {
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
+}
+
+/* === ARMORY === */
+.armory-body {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('mubg.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.armory-body .container {
+    max-width: 860px;
+}
+
+.armory-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 1.8rem;
+}
+
+.armory-search input {
+    flex: 1 1 auto;
+    width: auto;          /* override global "input { width: 100% }" */
+    min-width: 0;         /* allow the flex item to shrink properly */
+    max-width: 300px;
+    padding: 0.7rem 1rem;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.armory-search input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.armory-search button {
+    flex: 0 0 auto;       /* keep the button at its content size */
+    width: auto;          /* override global "button { width: 100% }" */
+    margin-top: 0;        /* override global "button { margin-top: 1rem }" */
+    padding: 0.7rem 1.4rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #1a1a1a;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.armory-search button:hover {
+    filter: brightness(1.1);
+}
+
+.armory-content {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+/* Left: character panel */
+.armory-char {
+    flex: 0 0 240px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.armory-char-image {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    opacity: 0.9;
+}
+
+.armory-char-name {
+    color: var(--primary);
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+.armory-char-class {
+    color: #aaa;
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-bottom: 0.8rem;
+}
+
+.armory-char-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.armory-char-stats b {
+    color: #fff;
+}
+
+/* Right: equipment paper doll */
+.armory-equip {
+    flex: 1;
+    min-height: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.armory-doll {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.armory-slot {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.armory-slot.filled {
+    border-color: rgba(212, 175, 55, 0.4);
+    background: rgba(212, 175, 55, 0.08);
+    cursor: help;
+}
+
+.armory-slot img {
+    max-width: 86%;
+    max-height: 86%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.armory-slot img.img-missing {
+    visibility: hidden;
+}
+
+.armory-slot .slot-label {
+    color: #555;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.armory-slot .badge {
+    position: absolute;
+    font-size: 0.6rem;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 4px;
+    line-height: 1.2;
+}
+
+.armory-slot .badge.exc { top: 3px; left: 3px; background: rgba(46, 204, 113, 0.85); color: #07210f; }
+.armory-slot .badge.anc { top: 3px; right: 3px; background: rgba(255, 215, 0, 0.9); color: #2a2100; }
+.armory-slot .badge.sock { bottom: 3px; right: 3px; background: rgba(155, 89, 182, 0.9); color: #fff; }
+
+.armory-message {
+    text-align: center;
+    color: #aaa;
+    padding: 1rem;
+}
+
+.armory-message.error {
+    color: #e74c3c;
+}
+
+/* Themed item tooltip */
+.item-tooltip {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 320px;
+    padding: 10px 13px;
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-top: 3px solid var(--primary);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: #cfcfcf;
+}
+
+.item-tooltip .tip-head {
+    color: var(--primary);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.item-tooltip .tip-line.opt { color: #4aa3ff; }   /* normal options & luck - blue */
+.item-tooltip .tip-line.exc { color: #2ecc71; }   /* excellent options - green */
+.item-tooltip .tip-line.skill { color: #ffffff; } /* skill - white */
+.item-tooltip .tip-line.sock { color: #b18bd8; }  /* sockets - purple */
+
+/* armory paper-doll stacks earlier (640px) than the global phone breakpoint */
+@media (max-width: 640px) {
+    .armory-content {
+        flex-direction: column;
+    }
+    .armory-char {
+        flex: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* === MOBILE (phones) === */
+@media (max-width: 480px) {
+    body {
+        padding: 1rem 0.75rem;   /* horizontal breathing room, stop edge-clipping */
+    }
+
+    .container {
+        padding: 1.5rem;         /* tighter than the 2.5rem desktop padding */
+    }
+
+    h2 {
+        font-size: 1.3rem;
+        letter-spacing: 1px;
+        margin-bottom: 1.5rem;
+        word-break: break-word;
+    }
+
+    .footer-nav {
+        gap: 10px;
+        margin-top: 1.8rem;
+        padding-top: 1.5rem;
+    }
+
+    .nav-link {
+        padding: 8px 14px;
+        font-size: 0.78rem;
+    }
+
+    /* ranking table: fit 5 columns on a narrow screen */
+    th,
+    td {
+        padding: 8px 6px;
+        font-size: 0.82rem;
+    }
+
+    .reset-badge {
+        margin-left: 6px;
+        padding: 1px 5px;
+        font-size: 0.65rem;
+    }
 }

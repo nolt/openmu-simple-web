@@ -1,0 +1,37 @@
+@page "/"
+@{
+    ViewData["Title"] = "OpenMU";
+    ViewData["ContainerClass"] = "index-container";
+    ViewData["ActivePage"] = "/";
+}
+
+<div class="index-grid">
+    <div class="index-left">
+        <div class="index-title" id="welcomeTitle">Welcome to OpenMU</div>
+        <div class="index-text" id="welcomeText"></div>
+        <div class="details-list" id="detailsList"></div>
+    </div>
+
+    <div class="index-right">
+        <div class="index-status-row">
+            <div class="index-status">
+                <div class="status-dot-box" id="indexStatusDot"></div>
+                <div class="status-value" id="indexStatusText">---</div>
+                <div class="status-label" data-i18n="srvStatus">Server Status</div>
+            </div>
+            <div class="index-status">
+                <div class="players-value" id="indexPlayersText">0</div>
+                <div class="status-label" data-i18n="playersOnline">Online Players</div>
+            </div>
+        </div>
+        <div id="downloadArea" class="dl-area"></div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="/css/index.css">
+}
+
+@section Scripts {
+    <script src="/js/index.js"></script>
+}

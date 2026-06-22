@@ -1,0 +1,44 @@
+@page "/armory"
+@{
+    ViewData["Title"] = "OpenMU - Armory";
+    ViewData["BodyClass"] = "armory-body";
+    ViewData["ActivePage"] = "/armory";
+}
+
+<h2 data-i18n="armoryTitle">Armory</h2>
+
+<div class="server-status" id="serverStatus">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Checking...</span>
+</div>
+
+<form class="armory-search" id="armorySearch">
+    <input type="text" id="charInput" maxlength="10" autocomplete="off"
+           data-i18n-placeholder="armorySearch" placeholder="Character name...">
+    <button type="submit" data-i18n="armoryBtn">Search</button>
+</form>
+
+<div class="armory-content">
+    <!-- Left: character panel (placeholder image + basic info) -->
+    <div class="armory-char">
+        <img id="charImage" class="armory-char-image" src="/img/char-placeholder.svg" alt="Character">
+        <div class="armory-char-info" id="charInfo"></div>
+    </div>
+
+    <!-- Right: equipped items (paper doll) -->
+    <div class="armory-equip" id="armoryEquip">
+        <p class="armory-message" id="armoryMessage" data-i18n="armoryHint">
+            Search for a character to view their equipment.
+        </p>
+    </div>
+</div>
+
+@* Tooltip lives in BodyEnd (outside .container) so its position:fixed resolves against the    *@
+@* viewport — .container's backdrop-filter would otherwise become its containing block.         *@
+@section BodyEnd {
+    <div id="itemTooltip" class="item-tooltip" role="tooltip"></div>
+}
+
+@section Scripts {
+    <script src="/js/armory.js"></script>
+}

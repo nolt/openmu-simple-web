@@ -1,5 +1,12 @@
+// Skeleton for adding a new interface language. To add e.g. German:
+//   1. Copy this file to de.js (or just copy the already-translated en.js).
+//   2. Rename the "xx" key below to your language code (e.g. .de).
+//   3. Fill in every value with the translation.
+//   4. Add <script src="de.js"></script> next to en.js / pl.js on every *.html page.
+// The switch button (label = the uppercased code, e.g. "DE") then appears automatically;
+// to give it a nicer label, add an entry to the LABELS map in lang.js.
 window.muTranslations = window.muTranslations || {};
-window.muTranslations.XX = {
+window.muTranslations.xx = {
     title: "",
     titleChange: "",
     rankingTitle: "",
@@ -26,6 +33,9 @@ window.muTranslations.XX = {
     processing: "",
     srvStatus: "",
     playersOnline: "",
+    dlDownload: "",
+    dlRecommended: "",
+    dlSoon: "",
     online: "",
     offline: "",
 
@@ -39,6 +49,42 @@ window.muTranslations.XX = {
     navHome: "",
     navChangePass: "",
     navRegister: "",
+    navArmory: "",
+    navCommands: "",
+
+    commandsTitle: "",
+    commandsIntro: "",
+    cmdSecStats: "",
+    cmdSecReset: "",
+    cmdSecChar: "",
+    cmdSecSocial: "",
+    cmdSecHelp: "",
+    cmdHint: "",
+
+    cmdAddDesc: "",
+    cmdResetDesc: "",
+    cmdResetInfoDesc: "",
+    cmdResetStatsDesc: "",
+    cmdMoveDesc: "",
+    cmdClearInvDesc: "",
+    cmdNpcDesc: "",
+    cmdOpenWareDesc: "",
+    cmdOffLevelDesc: "",
+    cmdLanguageDesc: "",
+    cmdPostDesc: "",
+    cmdWarDesc: "",
+    cmdBattleSoccerDesc: "",
+    cmdListDesc: "",
+    cmdHelpDesc: "",
+
+    armoryTitle: "",
+    armorySearch: "",
+    armoryBtn: "",
+    armoryResets: "",
+    armoryHint: "",
+    armoryNoItems: "",
+    ARMORY_NOT_FOUND: "",
+    RATE_LIMIT_ARMORY: "",
 
     eventsTitle: "",
     eventsRemaining: "",

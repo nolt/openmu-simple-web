@@ -1,0 +1,21 @@
+@page "/commands"
+@{
+    ViewData["Title"] = "OpenMU - Commands";
+    ViewData["BodyClass"] = "stats-body";
+    ViewData["ActivePage"] = "/commands";
+}
+
+<h2 data-i18n="commandsTitle">Chat Commands</h2>
+<p class="commands-intro" data-i18n="commandsIntro">Commands available to players.</p>
+
+<div id="commandsContainer"></div>
+
+<div class="cmd-hint" id="cmdHint" data-i18n="cmdHint"></div>
+
+@section Styles {
+    <link rel="stylesheet" href="/css/commands.css">
+}
+
+@section Scripts {
+    <script src="/js/commands.js"></script>
+}

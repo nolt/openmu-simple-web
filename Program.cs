@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Rewrite;
 using System.Collections.Concurrent;
 using OpenMU_Web.Data;
 using OpenMU_Web.Endpoints;
@@ -10,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // --- SERVICES ---
+builder.Services.AddRazorPages();
 builder.Services.AddDbContext<OpenMuContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddCors(options =>
 {
@@ -24,23 +24,16 @@ builder.Services.AddSingleton<ConcurrentDictionary<string, DateTime>>(_ => new C
 builder.Services.AddKeyedSingleton<RateLimiter>("password");
 builder.Services.AddKeyedSingleton<RateLimiter>("ranking");
 builder.Services.AddKeyedSingleton<RateLimiter>("events");
+builder.Services.AddKeyedSingleton<RateLimiter>("armory");
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
 app.UseCors("AllowAll");
 
-// --- 1. REDIRECTIONS (SEO and Friendly URLs) ---
-var rewriteOptions = new RewriteOptions()
-    .AddRewrite("^changepass$", "changepass.html", skipRemainingRules: true)
-    .AddRewrite("^register$", "register.html", skipRemainingRules: true)
-    .AddRewrite("^events$", "events.html", skipRemainingRules: true)
-    .AddRewrite("^stats$", "stats.html", skipRemainingRules: true)
-    .AddRewrite("^$", "index.html", skipRemainingRules: true);
-
-app.UseRewriter(rewriteOptions);
+// Friendly URLs are now owned by Razor Pages (Pages/*.cshtml, routed via @@page "/route");
+// no URL rewriting needed. Static assets (css/js/img/translations) are served from wwwroot.
 app.UseStaticFiles();
-app.UseDefaultFiles();
 
 // Periodic cleanup of expired rate limiter entries (every 10 minutes)
 var cleanupTimer = new PeriodicTimer(TimeSpan.FromMinutes(10));
@@ -53,6 +46,7 @@ _ = Task.Run(async () =>
         var passwordLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("password");
         var rankingLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("ranking");
         var eventsLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("events");
+        var armoryLimiter = app.Services.GetRequiredKeyedService<RateLimiter>("armory");
 
         foreach (var key in ipLimit.Keys)
             if (ipLimit[key] < now.AddDays(-1)) ipLimit.TryRemove(key, out _);
@@ -60,14 +54,17 @@ _ = Task.Run(async () =>
         passwordLimiter.Cleanup(now, TimeSpan.FromMinutes(15));
         rankingLimiter.Cleanup(now, TimeSpan.FromMinutes(1));
         eventsLimiter.Cleanup(now, TimeSpan.FromMinutes(1));
+        armoryLimiter.Cleanup(now, TimeSpan.FromMinutes(1));
     }
 });
 
 // --- 2. ENDPOINTS ---
+app.MapRazorPages();
 app.MapRegistrationEndpoints();
 app.MapPasswordEndpoints();
 app.MapRankingEndpoints();
 app.MapEventsEndpoints();
+app.MapArmoryEndpoints();
 
 var serverCheckConfig = builder.Configuration.GetSection("ServerCheck");
 var serverHost = serverCheckConfig["Host"] ?? "openmu-server";

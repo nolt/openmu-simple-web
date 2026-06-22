@@ -1,0 +1,83 @@
+@inject IConfiguration Configuration
+@{
+    // Single source of truth for the site languages + default (appsettings.json -> "Site").
+    // Add a language: drop <code>.js in wwwroot and add the code here. Change the default: edit
+    // DefaultLanguage. No page or layout edits needed — every page inherits this.
+    var langs = Configuration.GetSection("Site:Languages").Get<string[]>() ?? new[] { "en", "pl" };
+    var defaultLang = Configuration["Site:DefaultLanguage"] ?? (langs.Length > 0 ? langs[0] : "en");
+
+    // Footer navigation, shared by every page; the current page is skipped automatically.
+    var active = ViewData["ActivePage"] as string;
+    var nav = new[]
+    {
+        ("/",         "navHome",     "Home"),
+        ("/stats",    "navStats",    "Server Stats"),
+        ("/armory",   "navArmory",   "Armory"),
+        ("/events",   "navEvents",   "Events"),
+        ("/commands", "navCommands", "Commands"),
+    };
+}
+<!DOCTYPE html>
+<html lang="@defaultLang">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="/style.css">
+    @foreach (var l in langs)
+    {
+        <script src="/@(l).js"></script>
+    }
+    <script src="/content.js"></script>
+    <script src="/lang.js" data-default="@defaultLang"></script>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="@ViewData["BodyClass"]">
+    <div class="container @ViewData["ContainerClass"]">
+        <div class="lang-switch" id="lang-switch"></div>
+
+        @RenderBody()
+
+        <div class="footer-nav">
+            @* Account pages (register / changepass) supply their own links via a FooterNav     *@
+            @* section; every other page falls back to the shared, auto-built game navigation.  *@
+            @if (IsSectionDefined("FooterNav"))
+            {
+                @await RenderSectionAsync("FooterNav")
+            }
+            else
+            {
+                // The home page doubles as the account hub: it surfaces Register / Change
+                // Password ahead of the game links. Subpages only navigate among game pages.
+                if (active == "/")
+                {
+                    <a href="/register" class="nav-link"><span data-i18n="navRegister">Register Account</span></a>
+                    <a href="/changepass" class="nav-link"><span data-i18n="navChangePass">Change Password</span></a>
+                }
+                @foreach (var (route, key, label) in nav)
+                {
+                    if (route != active)
+                    {
+                        <a href="@route" class="nav-link"><span data-i18n="@key">@label</span></a>
+                    }
+                }
+            }
+        </div>
+    </div>
+    <div class="credits">
+        <a href="https://github.com/nolt" target="_blank">
+            <span>&lt;/&gt; with ❤️ by</span> Nolt
+        </a>
+    </div>
+
+    @* Rendered OUTSIDE .container on purpose: .container has backdrop-filter, which makes it the   *@
+    @* containing block for position:fixed children. Overlays (e.g. the armory item tooltip) must    *@
+    @* live here so they position against the viewport, not the panel.                               *@
+    @await RenderSectionAsync("BodyEnd", required: false)
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

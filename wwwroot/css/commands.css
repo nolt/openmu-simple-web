@@ -1,0 +1,104 @@
+.commands-intro {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #aaa;
+    margin: -0.4rem 0 1.6rem;
+}
+
+.cmd-section {
+    margin-bottom: 1.6rem;
+}
+
+.cmd-section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin: 0 0 0.7rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.cmd-card {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 0.5rem;
+    transition: border-color 0.3s;
+}
+
+.cmd-card:hover {
+    border-color: rgba(212, 175, 55, 0.35);
+}
+
+.cmd-signature {
+    flex: 0 0 auto;
+    font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.cmd-key {
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.cmd-args {
+    color: #7f8c9a;
+    margin-left: 4px;
+}
+
+.cmd-desc {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.85rem;
+    color: #ccc;
+    line-height: 1.5;
+}
+
+.cmd-desc code {
+    font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+    background: rgba(212, 175, 55, 0.1);
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+
+.cmd-desc b {
+    color: #e0e0e0;
+}
+
+.cmd-hint {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #888;
+    font-style: italic;
+    margin-top: 1.5rem;
+    padding: 0.9rem 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cmd-hint code {
+    font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
+    color: var(--primary);
+    background: rgba(212, 175, 55, 0.1);
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+    .cmd-card {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .cmd-signature {
+        white-space: normal;
+    }
+}

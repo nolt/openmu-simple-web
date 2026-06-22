@@ -1,0 +1,174 @@
+.event-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.2rem;
+    transition: border-color 0.3s;
+}
+
+.event-card:last-child {
+    margin-bottom: 0;
+}
+
+.event-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+}
+
+.event-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.event-duration {
+    font-size: 0.75rem;
+    color: #888;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+.event-countdown {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.countdown-number {
+    font-size: 2.0rem;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+    color: var(--primary);
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    letter-spacing: 2px;
+}
+
+.countdown-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 4px;
+}
+
+.event-timetable {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+
+.event-body {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.event-left {
+    flex: 0 0 220px;
+    text-align: center;
+}
+
+.event-right {
+    flex: 1;
+    min-width: 0;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 600px) {
+    .event-body {
+        flex-direction: column;
+    }
+    .event-left {
+        flex: none;
+    }
+    .event-right {
+        border-left: none;
+        padding-left: 0;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+    }
+}
+
+.event-time-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #aaa;
+    letter-spacing: 0.5px;
+}
+
+.event-time-badge.next {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--primary);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    font-weight: bold;
+}
+
+.event-status {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #2ecc71;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.event-status.active {
+    display: block;
+    animation: pulse 2s infinite;
+}
+
+.event-icon {
+    font-size: 1.3rem;
+    margin-right: 8px;
+}
+
+.event-red-dragon .event-name { color: #e74c3c; }
+.event-red-dragon .countdown-number { color: #e74c3c; text-shadow: 0 0 20px rgba(231, 76, 60, 0.3); }
+.event-red-dragon .event-time-badge.next { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border-color: rgba(231, 76, 60, 0.3); }
+
+.event-golden .event-name { color: #ffd700; }
+.event-golden .countdown-number { color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+.event-golden .event-time-badge.next { background: rgba(255, 215, 0, 0.15); color: #ffd700; border-color: rgba(255, 215, 0, 0.3); }
+
+.event-blood-castle .event-name { color: #3498db; }
+.event-blood-castle .countdown-number { color: #3498db; text-shadow: 0 0 20px rgba(52, 152, 219, 0.3); }
+.event-blood-castle .event-time-badge.next { background: rgba(52, 152, 219, 0.15); color: #3498db; border-color: rgba(52, 152, 219, 0.3); }
+
+.event-chaos-castle .event-name { color: #9b59b6; }
+.event-chaos-castle .countdown-number { color: #9b59b6; text-shadow: 0 0 20px rgba(155, 89, 182, 0.3); }
+.event-chaos-castle .event-time-badge.next { background: rgba(155, 89, 182, 0.15); color: #9b59b6; border-color: rgba(155, 89, 182, 0.3); }
+
+.event-devil-square .event-name { color: #1abc9c; }
+.event-devil-square .countdown-number { color: #1abc9c; text-shadow: 0 0 20px rgba(26, 188, 156, 0.3); }
+.event-devil-square .event-time-badge.next { background: rgba(26, 188, 156, 0.15); color: #1abc9c; border-color: rgba(26, 188, 156, 0.3); }
+
+.event-happy-hour .event-name { color: #e84393; }
+.event-happy-hour .countdown-number { color: #e84393; text-shadow: 0 0 20px rgba(232, 67, 147, 0.3); }
+.event-happy-hour .event-time-badge.next { background: rgba(232, 67, 147, 0.15); color: #e84393; border-color: rgba(232, 67, 147, 0.3); }
+.event-happy-hour .event-description { font-weight: bold; }
+
+.event-description {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-top: -0.5rem;
+    margin-bottom: 0.5rem;
+    font-style: italic;
+}
+
+.event-loader {
+    text-align: center;
+    padding: 2rem;
+    color: #888;
+    font-size: 0.9rem;
+}

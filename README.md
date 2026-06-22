@@ -12,6 +12,8 @@ Website is multilanguage English and Polish.
 - server status
 - server TOP 10
 - event status info (BC/DS/CC etc.)
+- armory (character equipment viewer)
+- chat commands reference
 
 ## Requirements
 - Docker
@@ -28,31 +30,57 @@ Build your service:
 
 ## Adding a new language
 
+The pages share a single Razor layout (`Pages/Shared/_Layout.cshtml`), so adding a language
+means editing **one config list** — no per-page changes.
+
 1. **Create a translation file**
-   - Copy `wwwroot/template_lang.js` and rename it to your language code, e.g. `de.js` for German.
-   - Replace `XX` on line 2 with your language code, e.g. `de`.
-   - Fill in all empty strings with your translations.
+   - Copy `wwwroot/template_lang.js` (an empty skeleton with every key) — or the
+     already-translated `wwwroot/en.js` — to your language code, e.g. `de.js` for German.
+   - Change the object key on line 2 (`window.muTranslations.xx`) to your code, e.g. `.de`.
+   - Fill in every value with your translation.
 
-2. **Add the script to each HTML file**
-   In each of these 5 files, add a `<script>` tag for your new language AFTER `en.js` and BEFORE `pl.js`:
-   - `wwwroot/index.html`
-   - `wwwroot/register.html`
-   - `wwwroot/changepass.html`
-   - `wwwroot/stats.html`
-   - `wwwroot/events.html`
-
-   Example (for German, `de.js`):
-   ```html
-   <script src="en.js"></script>
-   <script src="de.js"></script>
-   <script src="pl.js"></script>
+2. **Register it in the site config**
+   Add the code to the `Site:Languages` array in `appsettings.json` — the single place the
+   language list lives. The shared layout emits the `<script>` tag for every listed language
+   on every page automatically:
+   ```json
+   "Site": {
+     "Languages": [ "en", "pl", "de" ],
+     "DefaultLanguage": "en"
+   }
    ```
 
 3. **Update content.js (optional)**
-   If you also want the homepage text and server info translated, add your language section to the `window.muContent` object in `wwwroot/content.js`, following the same pattern as `en` and `pl`.
+   The homepage rates and welcome text come from `window.muContent` in `wwwroot/content.js`.
+   Add your language section there, following the same pattern as `en` and `pl`.
 
 4. **Done**
-   The language switcher in the top-right corner automatically picks up all languages that exist in `window.muTranslations`. No other changes needed.
+   `lang.js` builds the switch buttons automatically from every language found in
+   `window.muTranslations` — no per-page button editing. The button label is the uppercased
+   code (e.g. `DE`); for a nicer label add an entry to the `LABELS` map in `wwwroot/lang.js`.
+
+To start the site in another language by default, set `Site:DefaultLanguage` (e.g. `"de"`) in
+`appsettings.json`. That single value is handed to `lang.js`; no page edits.
+
+## Setting the download links
+
+The home page download menu is driven by `window.muConfig.downloads` in `wwwroot/content.js`.
+Each entry is one target:
+
+```js
+downloads: [
+    { id: "launcher", icon: "🚀", name: "Launcher", url: "https://...", recommended: true },
+    { id: "windows",  icon: "🪟", name: "Windows",  url: "https://..." },
+    { id: "linux",    icon: "🐧", name: "Linux",    url: "#", soon: true },
+],
+```
+
+- `url` — the download link. **The shipped values are `#` placeholders — set your own.**
+- `recommended` — highlights the entry (e.g. the auto-updating launcher).
+- `soon` — shows it as an upcoming, non-clickable target.
+
+Add or remove a platform by editing this list — no markup changes. The generic labels
+(Download / recommended / soon) come from the `dl*` keys in the language files.
 
 ---
 Example:

@@ -1,0 +1,47 @@
+@page "/register"
+@{
+    ViewData["Title"] = "OpenMU - Registration";
+}
+
+<h2 data-i18n="title">OpenMU</h2>
+<form id="regForm">
+    <div class="form-group">
+        <label data-i18n="login">Login</label>
+        <input type="text" name="username" required minlength="3" maxlength="10"
+               data-i18n-placeholder="placeholderLogin">
+    </div>
+    <div class="form-group">
+        <label data-i18n="email">Email</label>
+        <input type="email" name="email" required data-i18n-placeholder="placeholderEmail">
+    </div>
+    <div class="form-group">
+        <label data-i18n="pass">Password</label>
+        <input type="password" name="password" required minlength="8" maxlength="16"
+               data-i18n-placeholder="placeholderPass">
+    </div>
+    <div class="form-group">
+        <label data-i18n="confirmPass">Confirm Password</label>
+        <input type="password" name="confirmPassword" required minlength="8" maxlength="16"
+               data-i18n-placeholder="placeholderConfirmPass">
+    </div>
+    <div class="form-group">
+        <label data-i18n="pin">Security Code (PIN)</label>
+        <input type="text" name="securityCode" required minlength="6" maxlength="10" pattern="[0-9]{6,10}"
+               data-i18n-placeholder="placeholderPin">
+        <div class="warning-box" data-i18n="pinWarn">Required for in-game character operations.</div>
+    </div>
+    <button type="submit" id="submitBtn">
+        <span id="btnText" data-i18n="btnReg">Create Account</span>
+        <div id="btnLoader" class="spinner-loader"></div>
+    </button>
+</form>
+<div id="message"></div>
+
+@section FooterNav {
+    <a href="/" class="nav-link"><span data-i18n="navHome">Home</span></a>
+    <a href="/changepass" class="nav-link"><span data-i18n="navChangePass">Change Password</span></a>
+}
+
+@section Scripts {
+    <script src="/js/register.js"></script>
+}

@@ -1,0 +1,258 @@
+.index-container {
+    max-width: 900px;
+}
+
+.index-container .lang-switch {
+    margin-bottom: 0;
+}
+
+.index-grid {
+    display: flex;
+    gap: 2.5rem;
+    align-items: stretch;
+}
+
+.index-left {
+    flex: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    position: relative;
+}
+.index-left::after {
+    content: "";
+    position: absolute;
+    right: -1.25rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.index-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.index-status-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.index-status-row .index-status {
+    flex: 1;
+    margin-top: 0;
+}
+
+.index-status {
+    text-align: center;
+    padding: 0.8rem 1rem;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.index-title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--primary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.index-text {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #ccc;
+    white-space: pre-line;
+}
+
+.details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.details-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.details-row li {
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    color: var(--primary);
+    letter-spacing: 0.5px;
+    list-style: none;
+}
+
+.details-row .detail-label {
+    color: #ccc;
+}
+
+.details-row a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.details-row a:hover {
+    text-decoration: underline;
+}
+
+.status-dot-box {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-bottom: 6px;
+    transition: background 0.3s;
+}
+
+.status-dot-box.online {
+    background: #2ecc71;
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+    animation: pulse 2s infinite;
+}
+
+.status-dot-box.offline {
+    background: #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+}
+
+.status-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.status-value.online { color: #2ecc71; }
+.status-value.offline { color: #e74c3c; }
+
+.status-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.players-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #3498db;
+    margin-bottom: 4px;
+}
+
+/* === DOWNLOAD DROPDOWN === */
+/* A single gold "Download" button reveals the targets from muConfig.downloads. */
+.dl-area { margin-top: 0.4rem; }
+
+.dl-gold {
+    background: linear-gradient(135deg, #d4af37 0%, #a68a2d 100%);
+    color: #000;
+    border: none;
+}
+.dl-gold:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+}
+
+.dlC-wrap { position: relative; }
+.dlC-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.dlC-trigger .dlC-caret { font-size: 0.7rem; transition: transform 0.25s ease; }
+.dlC-wrap.open .dlC-caret { transform: rotate(180deg); }
+
+.dlC-menu {
+    position: absolute;
+    left: 0; right: 0;
+    margin-top: 8px;
+    background: rgba(15, 15, 15, 0.97);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 50;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    /* animated slide-down reveal (can't transition display, so use opacity/transform) */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scaleY(0.97);
+    transform-origin: top center;
+    max-height: 0;
+    transition: opacity 0.22s ease, transform 0.24s ease, max-height 0.28s ease, visibility 0s linear 0.24s;
+}
+.dlC-wrap.open .dlC-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleY(1);
+    max-height: 320px;
+    transition: opacity 0.22s ease, transform 0.24s ease, max-height 0.28s ease, visibility 0s;
+}
+
+.dlC-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    color: #ddd;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    /* each row eases in slightly after the menu opens (cascade) */
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.dlC-wrap.open .dlC-item { opacity: 1; transform: translateY(0); }
+.dlC-wrap.open .dlC-item:nth-child(1) { transition-delay: 0.06s, 0.06s, 0s, 0s; }
+.dlC-wrap.open .dlC-item:nth-child(2) { transition-delay: 0.11s, 0.11s, 0s, 0s; }
+.dlC-wrap.open .dlC-item:nth-child(3) { transition-delay: 0.16s, 0.16s, 0s, 0s; }
+.dlC-item:last-child { border-bottom: none; }
+/* Gold is reserved as the "recommended" identity (Launcher only). Hovering the other
+   options gives a neutral lift instead, so two items never glow gold at once. */
+.dlC-item:hover { background: rgba(255, 255, 255, 0.04); color: #fff; }
+.dlC-item .dlC-tag { margin-left: auto; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; }
+/* Recommended option (Launcher): bold + gold accent so it reads as the suggested pick,
+   while every entry stays an explicit, equal click — nothing auto-downloads. */
+.dlC-item.recommended { font-weight: bold; color: #fff; background: rgba(212, 175, 55, 0.07); box-shadow: inset 3px 0 0 var(--primary); }
+.dlC-item.recommended:hover { background: rgba(212, 175, 55, 0.14); }
+.dlC-item.recommended .dlC-tag { color: var(--primary); font-weight: bold; }
+.dlC-item.soon { opacity: 0.5; pointer-events: none; }
+.dlC-item.soon .dlC-tag { color: #aaa; }
+
+@media (max-width: 700px) {
+    .index-grid {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    /* the vertical separator only makes sense in the 2-column desktop layout;
+       in the stacked layout it floats at the right edge and looks broken */
+    .index-left::after {
+        display: none;
+    }
+}

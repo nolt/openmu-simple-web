@@ -1,0 +1,25 @@
+@page "/events"
+@{
+    ViewData["Title"] = "OpenMU - Events";
+    ViewData["BodyClass"] = "stats-body";
+    ViewData["ActivePage"] = "/events";
+}
+
+<h2 data-i18n="eventsTitle">Nadchodzące Wydarzenia</h2>
+
+<div class="server-status" id="serverStatus">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Checking...</span>
+</div>
+
+<div id="eventsContainer">
+    <div class="event-loader">...</div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="/css/events.css">
+}
+
+@section Scripts {
+    <script src="/js/events.js"></script>
+}
