@@ -44,7 +44,7 @@ public static class EventsEndpoints
 
                 var tz = TimeZoneInfo.Local;
                 var nowUtc = DateTime.UtcNow;
-                var nowLocal = TimeZoneInfo.ConvertTime(nowUtc, tz);
+                var todayUtc = DateOnly.FromDateTime(nowUtc);
                 var result = new List<object>();
 
                 using (var command = connection.CreateCommand())
@@ -78,36 +78,40 @@ public static class EventsEndpoints
                                 .OrderBy(t => t)
                                 .ToList();
 
+                            if (timetable.Count == 0)
+                                continue;
+
                             var durationStr = doc.RootElement.GetProperty("TaskDuration").GetString();
                             var duration = TimeSpan.Parse(durationStr!);
 
-                            TimeOnly? nextTime = null;
-                            foreach (var t in timetable)
-                            {
-                                var candidate = new DateTime(nowLocal.Year, nowLocal.Month, nowLocal.Day, t.Hour, t.Minute, t.Second);
-                                if (candidate > nowLocal)
+                            // The timetable holds UTC times of day: OpenMU matches them against DateTime.UtcNow
+                            // (PeriodicTaskConfiguration.IsItTimeToStart), so the time zone is only applied when
+                            // presenting them. Converting each occurrence separately keeps it right across DST.
+                            var occurrences = timetable
+                                .Select(t =>
                                 {
-                                    nextTime = t;
-                                    break;
-                                }
-                            }
+                                    var candidate = DateTime.SpecifyKind(todayUtc.ToDateTime(t), DateTimeKind.Utc);
+                                    if (candidate <= nowUtc)
+                                        candidate = candidate.AddDays(1);
 
-                            nextTime ??= timetable.First();
+                                    return (Utc: candidate, Local: TimeZoneInfo.ConvertTimeFromUtc(candidate, tz));
+                                })
+                                .ToList();
 
-                            var nextLocalDate = new DateTime(nowLocal.Year, nowLocal.Month, nowLocal.Day, nextTime.Value.Hour, nextTime.Value.Minute, nextTime.Value.Second);
-                            if (nextLocalDate <= nowLocal)
-                                nextLocalDate = nextLocalDate.AddDays(1);
-
-                            var nextUtcDate = TimeZoneInfo.ConvertTimeToUtc(nextLocalDate, tz);
+                            var next = occurrences.MinBy(o => o.Utc);
+                            var timetableLocal = occurrences
+                                .Select(o => TimeOnly.FromDateTime(o.Local))
+                                .OrderBy(t => t)
+                                .ToList();
 
                             result.Add(new
                             {
                                 name = EventNames.GetValueOrDefault(typeId, "Unknown Event"),
-                                nextRunUtc = nextUtcDate.ToString("o"),
-                                countdownSeconds = (int)(nextUtcDate - nowUtc).TotalSeconds,
+                                nextRunUtc = next.Utc.ToString("o"),
+                                countdownSeconds = (int)(next.Utc - nowUtc).TotalSeconds,
                                 durationMinutes = (int)duration.TotalMinutes,
-                                timetable = timetable.Select(t => t.ToString("HH:mm")).ToList(),
-                                nextRunLocal = nextTime.Value.ToString("HH:mm"),
+                                timetable = timetableLocal.Select(t => t.ToString("HH:mm")).ToList(),
+                                nextRunLocal = TimeOnly.FromDateTime(next.Local).ToString("HH:mm"),
                                 experienceMultiplier = doc.RootElement.TryGetProperty("ExperienceMultiplier", out var exp) ? exp.GetSingle() : (float?)null,
                             });
                         }
