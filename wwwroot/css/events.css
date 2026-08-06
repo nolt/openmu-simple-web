@@ -157,6 +157,10 @@
 .event-happy-hour .event-time-badge.next { background: rgba(232, 67, 147, 0.15); color: #e84393; border-color: rgba(232, 67, 147, 0.3); }
 .event-happy-hour .event-description { font-weight: bold; }
 
+.event-white-wizard .event-name { color: #e8eeff; }
+.event-white-wizard .countdown-number { color: #e8eeff; text-shadow: 0 0 20px rgba(232, 238, 255, 0.3); }
+.event-white-wizard .event-time-badge.next { background: rgba(232, 238, 255, 0.15); color: #e8eeff; border-color: rgba(232, 238, 255, 0.3); }
+
 .event-description {
     text-align: center;
     font-size: 0.8rem;

@@ -38,6 +38,7 @@ const EVENT_STYLES = {
     'Chaos Castle': { css: 'event-chaos-castle', icon: '⚡' },
     'Devil Square': { css: 'event-devil-square', icon: '👹' },
     'Happy Hour': { css: 'event-happy-hour', icon: '🎉' },
+    'White Wizard Invasion': { css: 'event-white-wizard', icon: '🧙' },
 };
 
 function renderEvent(event) {
@@ -95,7 +96,7 @@ function updateCountdowns() {
     });
 }
 
-const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Red Dragon Invasion', 'Golden Invasion'];
+const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Red Dragon Invasion', 'Golden Invasion', 'White Wizard Invasion'];
 
 async function loadEvents() {
     const container = document.getElementById('eventsContainer');

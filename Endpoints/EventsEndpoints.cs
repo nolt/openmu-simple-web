@@ -17,6 +17,7 @@ public static class EventsEndpoints
         [Guid.Parse("3AD96A70-ED24-4979-80B8-169E461E548F")] = "Chaos Castle",
         [Guid.Parse("61C61A58-211E-4D6A-9EA1-D25E0C4A47C5")] = "Devil Square",
         [Guid.Parse("6542E452-9780-45B8-85AE-4036422E9A6E")] = "Happy Hour",
+        [Guid.Parse("4B5D0F55-5B26-4447-B9C0-C272E5D0A141")] = "White Wizard Invasion",
     };
 
     public static void MapEventsEndpoints(this WebApplication app)
