@@ -3,3 +3,6 @@ obj/
 .vs/
 .vscode/
 *.user
+
+# local environment (copy from .env.example)
+.env
