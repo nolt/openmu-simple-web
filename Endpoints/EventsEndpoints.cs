@@ -43,9 +43,10 @@ public static class EventsEndpoints
                 var connection = db.Database.GetDbConnection();
                 if (connection.State != ConnectionState.Open) await connection.OpenAsync();
 
-                var tz = TimeZoneInfo.Local;
                 var nowUtc = DateTime.UtcNow;
-                var todayUtc = DateOnly.FromDateTime(nowUtc);
+                var tz = await ResolveServerTimeZoneAsync(connection, logger);
+                var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
+                var todayLocal = DateOnly.FromDateTime(nowLocal);
                 var result = new List<object>();
 
                 using (var command = connection.CreateCommand())
@@ -85,15 +86,17 @@ public static class EventsEndpoints
                             var durationStr = doc.RootElement.GetProperty("TaskDuration").GetString();
                             var duration = TimeSpan.Parse(durationStr!);
 
-                            // The timetable holds UTC times of day: OpenMU matches them against DateTime.UtcNow
-                            // (PeriodicTaskConfiguration.IsItTimeToStart), so the time zone is only applied when
-                            // presenting them. Converting each occurrence separately keeps it right across DST.
+                            // The timetable holds local times of day in the server's configured time zone
+                            // (SystemConfiguration.TimeZoneId); OpenMU matches them against that same zone
+                            // (PeriodicTaskConfiguration.IsItTimeToStart). Convert each occurrence to UTC for the
+                            // countdown and back for display, which stays correct across DST.
                             var occurrences = timetable
                                 .Select(t =>
                                 {
-                                    var candidate = DateTime.SpecifyKind(todayUtc.ToDateTime(t), DateTimeKind.Utc);
+                                    var localTime = DateTime.SpecifyKind(todayLocal.ToDateTime(t), DateTimeKind.Unspecified);
+                                    var candidate = TimeZoneInfo.ConvertTimeToUtc(localTime, tz);
                                     if (candidate <= nowUtc)
-                                        candidate = candidate.AddDays(1);
+                                        candidate = TimeZoneInfo.ConvertTimeToUtc(localTime.AddDays(1), tz);
 
                                     return (Utc: candidate, Local: TimeZoneInfo.ConvertTimeFromUtc(candidate, tz));
                                 })
@@ -127,5 +130,41 @@ public static class EventsEndpoints
                     return Results.Json(new { code = "DATABASE_ERROR", message = "Database error. Please try again later." }, statusCode: 500);
             }
         });
+    }
+
+    /// <summary>
+    /// Reads the server time zone from <c>config."SystemConfiguration"."TimeZoneId"</c> and resolves it.
+    /// This is the same value the game server uses to interpret the event timetable, so the page and the
+    /// server share a single source of truth and no longer depend on the container's TZ environment.
+    /// Falls back to UTC when the column is absent (feature not deployed yet), the value is empty, or the id
+    /// cannot be resolved — which matches the server's own fallback behavior.
+    /// </summary>
+    private static async Task<TimeZoneInfo> ResolveServerTimeZoneAsync(System.Data.Common.DbConnection connection, ILogger logger)
+    {
+        string? tzId;
+        try
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = @"SELECT ""TimeZoneId"" FROM config.""SystemConfiguration"" LIMIT 1";
+            tzId = await command.ExecuteScalarAsync() as string;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not read SystemConfiguration.TimeZoneId; falling back to UTC.");
+            return TimeZoneInfo.Utc;
+        }
+
+        if (string.IsNullOrWhiteSpace(tzId))
+            return TimeZoneInfo.Utc;
+
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById(tzId);
+        }
+        catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
+        {
+            logger.LogWarning(ex, "Could not resolve server time zone '{TimeZoneId}'; falling back to UTC.", tzId);
+            return TimeZoneInfo.Utc;
+        }
     }
 }
