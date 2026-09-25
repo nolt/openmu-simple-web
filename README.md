@@ -28,6 +28,19 @@ Build your service:
 
 ```docker compose up -d --build```
 
+## Online players counter (OpenMU API key)
+
+The online players counter reads `/api/status` from the OpenMU admin panel (port 8080).
+OpenMU protects its API with API keys: as soon as the first admin account exists, requests
+without a key get `401` and the counter disappears.
+
+1. In the admin panel open **API keys**, create a key (e.g. `website`) with the role **Viewer**
+   and copy it — it is shown only once.
+2. Put it into `.env` as `SERVER_CHECK_API_KEY=...` and restart the site.
+
+The key is sent server-side in the `X-Api-Key` header; it never reaches the browser.
+Do this before creating the first admin, so the counter does not blink.
+
 ## Adding a new language
 
 The pages share a single Razor layout (`Pages/Shared/_Layout.cshtml`), so adding a language

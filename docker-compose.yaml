@@ -12,6 +12,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS}
       - ServerCheck__Host=${SERVER_CHECK_HOST:-openmu-server}
       - ServerCheck__Port=${SERVER_CHECK_PORT:-44406}
+      - ServerCheck__ApiKey=${SERVER_CHECK_API_KEY:-}
       - TZ=${TIMEZ}
     networks:
       - openmu-network

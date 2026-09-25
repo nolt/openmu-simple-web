@@ -69,6 +69,9 @@ app.MapArmoryEndpoints();
 var serverCheckConfig = builder.Configuration.GetSection("ServerCheck");
 var serverHost = serverCheckConfig["Host"] ?? "openmu-server";
 var serverPort = int.Parse(serverCheckConfig["Port"] ?? "44406");
+// OpenMU protects its /api with API keys (role Viewer is enough for /api/status).
+// The key stays server-side; without it the call only works while the admin panel has no admin yet.
+var serverApiKey = serverCheckConfig["ApiKey"];
 
 app.MapGet("/api/public/server-status", async () =>
 {
@@ -90,8 +93,21 @@ app.MapGet("/api/public/online-players", async (ILogger<Program> logger, IHttpCl
     {
         using var http = httpClientFactory.CreateClient();
         http.Timeout = TimeSpan.FromSeconds(3);
-        var response = await http.GetStringAsync($"http://{serverHost}:8080/api/status");
-        using var doc = JsonDocument.Parse(response);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"http://{serverHost}:8080/api/status");
+        if (!string.IsNullOrEmpty(serverApiKey))
+        {
+            request.Headers.Add("X-Api-Key", serverApiKey);
+        }
+
+        using var response = await http.SendAsync(request);
+        if (response.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden)
+        {
+            logger.LogWarning("OpenMU API rejected the player count request ({StatusCode}); check ServerCheck:ApiKey", (int)response.StatusCode);
+            return Results.Json(new { playerCount = (int?)null });
+        }
+
+        response.EnsureSuccessStatusCode();
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var players = doc.RootElement.GetProperty("players").GetInt32();
         return Results.Json(new { playerCount = players });
     }
