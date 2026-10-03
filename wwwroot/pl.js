@@ -63,6 +63,7 @@ window.muTranslations.pl = {
     cmdNpcDesc: "Otwiera okno sklepu NPC (handlarza).",
     cmdOpenWareDesc: "Otwiera magazyn (vault).",
     cmdOffLevelDesc: "Włącza levelowanie offline (MU Helper).",
+    cmdPkClearDesc: "Zdejmuje status PK z Twojej postaci za opłatą w zen za każde zabójstwo.",
     cmdLanguageDesc: "Zmienia język klienta.",
     cmdPostDesc: "Wysyła niebieski komunikat widoczny dla wszystkich graczy.",
     cmdWarDesc: "Wysyła żądanie wojny gildii z inną gildią.",

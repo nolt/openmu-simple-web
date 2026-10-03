@@ -23,6 +23,7 @@ const COMMAND_SECTIONS = [
             { key: '/npc', args: '', descKey: 'cmdNpcDesc' },
             { key: '/openware', args: '', descKey: 'cmdOpenWareDesc' },
             { key: '/offlevel', args: '', descKey: 'cmdOffLevelDesc' },
+            { key: '/pkclear', args: '', descKey: 'cmdPkClearDesc' },
             { key: '/language', args: '&lt;code&gt;', descKey: 'cmdLanguageDesc' },
         ]
     },

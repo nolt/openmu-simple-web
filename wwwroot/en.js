@@ -63,6 +63,7 @@ window.muTranslations.en = {
     cmdNpcDesc: "Opens the NPC merchant store.",
     cmdOpenWareDesc: "Opens the warehouse (vault).",
     cmdOffLevelDesc: "Enables offline leveling (MU Helper).",
+    cmdPkClearDesc: "Clears your own PK status for a zen fee per kill.",
     cmdLanguageDesc: "Changes the client language.",
     cmdPostDesc: "Sends a blue message visible to all players.",
     cmdWarDesc: "Requests a guild war with another guild.",

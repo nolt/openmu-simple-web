@@ -70,6 +70,7 @@ window.muTranslations.xx = {
     cmdNpcDesc: "",
     cmdOpenWareDesc: "",
     cmdOffLevelDesc: "",
+    cmdPkClearDesc: "",
     cmdLanguageDesc: "",
     cmdPostDesc: "",
     cmdWarDesc: "",
