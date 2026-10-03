@@ -1,4 +1,7 @@
 # openmu-simple-web
+
+🇵🇱 [Wersja polska](README.pl.md)
+
 This is simple website for OpenMU. 
 
 Website has been created for mine OpenMU server builder: https://github.com/nolt/openmu-docker  
