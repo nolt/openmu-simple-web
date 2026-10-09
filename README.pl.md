@@ -105,3 +105,8 @@ Przykład:
 ---
 Więcej informacji o projekcie OpenMU:
 https://github.com/MUnique/OpenMU
+
+## Licencja
+[MIT](LICENSE)
+
+Autor oryginalny: [Nolt](https://github.com/nolt).
