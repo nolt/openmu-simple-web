@@ -23,10 +23,12 @@ checkServerStatus();
 setInterval(checkServerStatus, 30000);
 
 function formatCountdown(seconds) {
-    const h = Math.floor(seconds / 3600);
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-    return String(h).padStart(2, '0') + ':' +
+    return (d > 0 ? d + 'd ' : '') +
+           String(h).padStart(2, '0') + ':' +
            String(m).padStart(2, '0') + ':' +
            String(s).padStart(2, '0');
 }
@@ -40,6 +42,7 @@ const EVENT_STYLES = {
     'Happy Hour': { css: 'event-happy-hour', icon: '🎉' },
     'White Wizard Invasion': { css: 'event-white-wizard', icon: '🧙' },
     'Kanturu Refinery Tower': { css: 'event-kanturu', icon: '🗼' },
+    'Castle Siege': { css: 'event-castle-siege', icon: '⚔️' },
 };
 
 function renderEvent(event) {
@@ -50,8 +53,10 @@ function renderEvent(event) {
 
     const countdownSeconds = event.countdownSeconds;
     const nextTimeStr = event.nextRunLocal || null;
+    // Weekly events come with the day of the week (0 = Sunday) of their single start.
+    const dayPrefix = event.dayOfWeek != null && t.eventsDays ? t.eventsDays[event.dayOfWeek] + ' ' : '';
     const timetableHtml = event.timetable.map(time =>
-        `<span class="event-time-badge${time === nextTimeStr ? ' next' : ''}">${time}</span>`
+        `<span class="event-time-badge${time === nextTimeStr ? ' next' : ''}">${dayPrefix}${time}</span>`
     ).join('');
 
     const durationHtml = event.durationMinutes != null
@@ -100,7 +105,7 @@ function updateCountdowns() {
     });
 }
 
-const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Red Dragon Invasion', 'Golden Invasion', 'White Wizard Invasion', 'Kanturu Refinery Tower'];
+const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Red Dragon Invasion', 'Golden Invasion', 'White Wizard Invasion', 'Kanturu Refinery Tower', 'Castle Siege'];
 
 async function loadEvents() {
     const container = document.getElementById('eventsContainer');

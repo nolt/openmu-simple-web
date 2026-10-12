@@ -165,6 +165,10 @@
 .event-kanturu .countdown-number { color: #a3e635; text-shadow: 0 0 20px rgba(163, 230, 53, 0.3); }
 .event-kanturu .event-time-badge.next { background: rgba(163, 230, 53, 0.15); color: #a3e635; border-color: rgba(163, 230, 53, 0.3); }
 
+.event-castle-siege .event-name { color: #e67e22; }
+.event-castle-siege .countdown-number { color: #e67e22; text-shadow: 0 0 20px rgba(230, 126, 34, 0.3); }
+.event-castle-siege .event-time-badge.next { background: rgba(230, 126, 34, 0.15); color: #e67e22; border-color: rgba(230, 126, 34, 0.3); }
+
 .event-description {
     text-align: center;
     font-size: 0.8rem;

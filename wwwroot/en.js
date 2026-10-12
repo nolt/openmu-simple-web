@@ -84,6 +84,7 @@ window.muTranslations.en = {
     eventsRemaining: "remaining",
     eventsDuration: "Duration",
     eventsMin: "min",
+    eventsDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     eventsXpMult: "Experience",
     eventsShow: "Schedule",
     eventsHide: "Hide",

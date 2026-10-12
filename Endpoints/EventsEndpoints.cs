@@ -10,6 +10,10 @@ namespace OpenMU_Web.Endpoints;
 public static class EventsEndpoints
 {
     private static readonly Guid KanturuTypeId = Guid.Parse("A8F3C2D1-9E74-4ECB-8963-08A3697278C4");
+    private static readonly Guid CastleSiegeTypeId = Guid.Parse("B7F62FA9-59E6-49E9-B499-0358A14957CF");
+
+    // CastleSiegeState.Start, the state in which the siege battle runs.
+    private const int CastleSiegeStartState = 7;
 
     private static readonly Dictionary<Guid, string> EventNames = new()
     {
@@ -145,6 +149,9 @@ public static class EventsEndpoints
                     }
                 }
 
+                if (await GetCastleSiegeEventAsync(connection, nowUtc, tz) is { } castleSiege)
+                    result.Add(castleSiege);
+
                 return Results.Ok(result);
             }
             catch (Exception ex)
@@ -153,6 +160,82 @@ public static class EventsEndpoints
                     return Results.Json(new { code = "DATABASE_ERROR", message = "Database error. Please try again later." }, statusCode: 500);
             }
         });
+    }
+
+    /// <summary>
+    /// Reads the weekly Castle Siege schedule from <c>config."CastleSiegeStateScheduleEntry"</c> and returns the
+    /// next siege battle. Unlike the periodic events, the siege has no timetable in its plugin configuration.
+    /// The day and time are shown as configured and taken as local time of the server time zone, like the
+    /// timetables of the other events. Returns <c>null</c> when the siege is disabled or the server has no
+    /// Castle Siege yet.
+    /// </summary>
+    private static async Task<object?> GetCastleSiegeEventAsync(System.Data.Common.DbConnection connection, DateTime nowUtc, TimeZoneInfo tz)
+    {
+        var schedule = new List<(int State, TimeSpan StartOfWeek)>();
+        try
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT s.""State"", s.""DayOfWeek"", s.""Hour"", s.""Minute""
+                FROM config.""CastleSiegeStateScheduleEntry"" s
+                JOIN config.""CastleSiegeConfiguration"" c ON c.""Id"" = s.""CastleSiegeConfigurationId""
+                WHERE c.""Enabled"" = true
+                AND EXISTS (
+                    SELECT 1 FROM config.""PlugInConfiguration"" p
+                    WHERE p.""TypeId"" = @typeId::uuid AND p.""IsActive"" = true)";
+            var p = command.CreateParameter();
+            p.ParameterName = "typeId";
+            p.Value = CastleSiegeTypeId;
+            command.Parameters.Add(p);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var startOfWeek = TimeSpan.FromDays(Convert.ToInt32(reader["DayOfWeek"]))
+                    + TimeSpan.FromHours(Convert.ToInt32(reader["Hour"]))
+                    + TimeSpan.FromMinutes(Convert.ToInt32(reader["Minute"]));
+                schedule.Add((Convert.ToInt32(reader["State"]), startOfWeek));
+            }
+        }
+        catch (Npgsql.PostgresException ex) when (ex.SqlState == Npgsql.PostgresErrorCodes.UndefinedTable)
+        {
+            // An OpenMU version without Castle Siege.
+            return null;
+        }
+
+        schedule.Sort((a, b) => a.StartOfWeek.CompareTo(b.StartOfWeek));
+        var startIndex = schedule.FindIndex(entry => entry.State == CastleSiegeStartState);
+        if (startIndex < 0 || schedule.Count < 2)
+            return null;
+
+        var week = TimeSpan.FromDays(7);
+        var start = schedule[startIndex].StartOfWeek;
+        var duration = schedule[(startIndex + 1) % schedule.Count].StartOfWeek - start;
+        if (duration <= TimeSpan.Zero)
+            duration += week;
+
+        var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
+        var nextLocal = DateTime.SpecifyKind(nowLocal.Date.AddDays(-(int)nowLocal.DayOfWeek) + start, DateTimeKind.Unspecified);
+        var nextUtc = TimeZoneInfo.ConvertTimeToUtc(nextLocal, tz);
+        if (nextUtc <= nowUtc)
+        {
+            nextLocal = nextLocal.AddDays(7);
+            nextUtc = TimeZoneInfo.ConvertTimeToUtc(nextLocal, tz);
+        }
+
+        var time = TimeOnly.FromDateTime(nextLocal).ToString("HH:mm");
+
+        return new
+        {
+            name = "Castle Siege",
+            nextRunUtc = nextUtc.ToString("o"),
+            countdownSeconds = (int)(nextUtc - nowUtc).TotalSeconds,
+            durationMinutes = (int)duration.TotalMinutes,
+            timetable = new List<string> { time },
+            nextRunLocal = time,
+            experienceMultiplier = (float?)null,
+            dayOfWeek = (int)nextLocal.DayOfWeek,
+        };
     }
 
     /// <summary>

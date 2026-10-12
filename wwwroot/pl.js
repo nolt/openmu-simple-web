@@ -84,6 +84,7 @@ window.muTranslations.pl = {
     eventsRemaining: "pozostało",
     eventsDuration: "Czas trwania",
     eventsMin: "min",
+    eventsDays: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "So"],
     eventsXpMult: "Doświadczenie",
     eventsShow: "Harmonogram",
     eventsHide: "Ukryj",

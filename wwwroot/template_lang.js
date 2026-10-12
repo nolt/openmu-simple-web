@@ -91,6 +91,7 @@ window.muTranslations.xx = {
     eventsRemaining: "",
     eventsDuration: "",
     eventsMin: "",
+    eventsDays: ["", "", "", "", "", "", ""],
     eventsXpMult: "",
     eventsShow: "",
     eventsHide: "",
