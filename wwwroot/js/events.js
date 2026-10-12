@@ -39,20 +39,24 @@ const EVENT_STYLES = {
     'Devil Square': { css: 'event-devil-square', icon: '👹' },
     'Happy Hour': { css: 'event-happy-hour', icon: '🎉' },
     'White Wizard Invasion': { css: 'event-white-wizard', icon: '🧙' },
+    'Kanturu Refinery Tower': { css: 'event-kanturu', icon: '🗼' },
 };
 
 function renderEvent(event) {
     const style = EVENT_STYLES[event.name] || { css: '', icon: '📅' };
     const lang = window.currentLang();
 
+    const t = window.muTranslations[lang];
+
     const countdownSeconds = event.countdownSeconds;
     const nextTimeStr = event.nextRunLocal || null;
-    const timetableHtml = event.timetable.map(t =>
-        `<span class="event-time-badge${t === nextTimeStr ? ' next' : ''}">${t}</span>`
+    const timetableHtml = event.timetable.map(time =>
+        `<span class="event-time-badge${time === nextTimeStr ? ' next' : ''}">${time}</span>`
     ).join('');
 
-    const t = window.muTranslations[lang];
-    const durationLabel = (t.eventsDuration || 'Czas trwania') + ': ' + event.durationMinutes + ' ' + (t.eventsMin || 'min');
+    const durationHtml = event.durationMinutes != null
+        ? `<div class="event-duration">${(t.eventsDuration || 'Czas trwania') + ': ' + event.durationMinutes + ' ' + (t.eventsMin || 'min')}</div>`
+        : '';
 
     const descHtml = event.experienceMultiplier
         ? `<div class="event-description">${(t.eventsXpMult || 'Experience')} x${event.experienceMultiplier.toFixed(1)}</div>`
@@ -65,7 +69,7 @@ function renderEvent(event) {
                     <span class="event-icon">${style.icon}</span>
                     ${event.name}
                 </div>
-                <div class="event-duration">${durationLabel}</div>
+                ${durationHtml}
             </div>
             ${descHtml}
             <div class="event-body">
@@ -96,7 +100,7 @@ function updateCountdowns() {
     });
 }
 
-const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Red Dragon Invasion', 'Golden Invasion', 'White Wizard Invasion'];
+const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Red Dragon Invasion', 'Golden Invasion', 'White Wizard Invasion', 'Kanturu Refinery Tower'];
 
 async function loadEvents() {
     const container = document.getElementById('eventsContainer');

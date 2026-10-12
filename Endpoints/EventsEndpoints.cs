@@ -9,6 +9,8 @@ namespace OpenMU_Web.Endpoints;
 
 public static class EventsEndpoints
 {
+    private static readonly Guid KanturuTypeId = Guid.Parse("A8F3C2D1-9E74-4ECB-8963-08A3697278C4");
+
     private static readonly Dictionary<Guid, string> EventNames = new()
     {
         [Guid.Parse("548A76CC-242C-441C-BC9D-6C22745A2D72")] = "Red Dragon Invasion",
@@ -18,6 +20,7 @@ public static class EventsEndpoints
         [Guid.Parse("61C61A58-211E-4D6A-9EA1-D25E0C4A47C5")] = "Devil Square",
         [Guid.Parse("6542E452-9780-45B8-85AE-4036422E9A6E")] = "Happy Hour",
         [Guid.Parse("4B5D0F55-5B26-4447-B9C0-C272E5D0A141")] = "White Wizard Invasion",
+        [KanturuTypeId] = "Kanturu Refinery Tower",
     };
 
     public static void MapEventsEndpoints(this WebApplication app)
@@ -90,13 +93,32 @@ public static class EventsEndpoints
                             // (SystemConfiguration.TimeZoneId); OpenMU matches them against that same zone
                             // (PeriodicTaskConfiguration.IsItTimeToStart). Convert each occurrence to UTC for the
                             // countdown and back for display, which stays correct across DST.
+                            // Kanturu skips its scheduled starts while the Tower of Refinement is open
+                            // (KanturuStartPlugIn.IsPreviousEventStillRunning), so the next run is the first
+                            // one after the tower closes.
+                            var earliestStartUtc = nowUtc;
+                            if (typeId == KanturuTypeId
+                                && doc.RootElement.TryGetProperty("TowerOpenUntilUtc", out var towerOpenUntil)
+                                && towerOpenUntil.ValueKind == JsonValueKind.String
+                                && towerOpenUntil.TryGetDateTime(out var towerOpenUntilUtc))
+                            {
+                                towerOpenUntilUtc = towerOpenUntilUtc.Kind == DateTimeKind.Unspecified
+                                    ? DateTime.SpecifyKind(towerOpenUntilUtc, DateTimeKind.Utc)
+                                    : towerOpenUntilUtc.ToUniversalTime();
+                                if (towerOpenUntilUtc > nowUtc)
+                                    earliestStartUtc = towerOpenUntilUtc;
+                            }
+
                             var occurrences = timetable
                                 .Select(t =>
                                 {
                                     var localTime = DateTime.SpecifyKind(todayLocal.ToDateTime(t), DateTimeKind.Unspecified);
                                     var candidate = TimeZoneInfo.ConvertTimeToUtc(localTime, tz);
-                                    if (candidate <= nowUtc)
-                                        candidate = TimeZoneInfo.ConvertTimeToUtc(localTime.AddDays(1), tz);
+                                    while (candidate <= earliestStartUtc)
+                                    {
+                                        localTime = localTime.AddDays(1);
+                                        candidate = TimeZoneInfo.ConvertTimeToUtc(localTime, tz);
+                                    }
 
                                     return (Utc: candidate, Local: TimeZoneInfo.ConvertTimeFromUtc(candidate, tz));
                                 })
@@ -113,7 +135,8 @@ public static class EventsEndpoints
                                 name = EventNames.GetValueOrDefault(typeId, "Unknown Event"),
                                 nextRunUtc = next.Utc.ToString("o"),
                                 countdownSeconds = (int)(next.Utc - nowUtc).TotalSeconds,
-                                durationMinutes = (int)duration.TotalMinutes,
+                                // The task duration of Kanturu is the pause between two runs, not the length of a run.
+                                durationMinutes = typeId == KanturuTypeId ? (int?)null : (int)duration.TotalMinutes,
                                 timetable = timetableLocal.Select(t => t.ToString("HH:mm")).ToList(),
                                 nextRunLocal = TimeOnly.FromDateTime(next.Local).ToString("HH:mm"),
                                 experienceMultiplier = doc.RootElement.TryGetProperty("ExperienceMultiplier", out var exp) ? exp.GetSingle() : (float?)null,
