@@ -62,7 +62,7 @@ public static class ArmoryEndpoints
 
                 const string headerSql = @"
                     SELECT
-                        cc.""Name"" as ""ClassName"",
+                        split_part(cc.""Name"", '||', 1) as ""ClassName"",
                         c.""InventoryId"",
                         (SELECT a.""Value"" FROM data.""StatAttribute"" a
                          JOIN config.""AttributeDefinition"" ad ON a.""DefinitionId"" = ad.""Id""
@@ -100,15 +100,15 @@ public static class ArmoryEndpoints
                         i.""ItemSlot"" as ""Slot"",
                         d.""Group"" as ""Grp"",
                         d.""Number"" as ""Num"",
-                        d.""Name"" as ""ItemName"",
+                        split_part(d.""Name"", '||', 1) as ""ItemName"",
                         i.""Level"" as ""Level"",
                         i.""HasSkill"" as ""HasSkill"",
                         i.""SocketCount"" as ""Sockets"",
                         EXISTS(SELECT 1 FROM data.""ItemOptionLink"" ol
                                JOIN config.""IncreasableItemOption"" io ON ol.""ItemOptionId"" = io.""Id""
                                JOIN config.""ItemOptionType"" ot ON io.""OptionTypeId"" = ot.""Id""
-                               WHERE ol.""ItemId"" = i.""Id"" AND ot.""Name"" = 'Excellent Option') as ""Excellent"",
-                        (SELECT sg.""Name"" FROM data.""ItemItemOfItemSet"" iis
+                               WHERE ol.""ItemId"" = i.""Id"" AND split_part(ot.""Name"", '||', 1) = 'Excellent Option') as ""Excellent"",
+                        (SELECT split_part(sg.""Name"", '||', 1) FROM data.""ItemItemOfItemSet"" iis
                          JOIN config.""ItemOfItemSet"" ois ON iis.""ItemOfItemSetId"" = ois.""Id""
                          JOIN config.""ItemSetGroup"" sg ON ois.""ItemSetGroupId"" = sg.""Id""
                          WHERE iis.""ItemId"" = i.""Id"" AND ois.""AncientSetDiscriminator"" > 0 LIMIT 1) as ""AncientSet""
@@ -150,7 +150,7 @@ public static class ArmoryEndpoints
                     const string optionsSql = @"
                         SELECT
                             ol.""ItemId"" as ""ItemId"",
-                            ot.""Name"" as ""OptType"",
+                            split_part(ot.""Name"", '||', 1) as ""OptType"",
                             COALESCE(
                                 (SELECT ad.""Designation"" FROM config.""ItemOptionOfLevel"" lvl
                                  JOIN config.""PowerUpDefinition"" p ON lvl.""PowerUpDefinitionId"" = p.""Id""

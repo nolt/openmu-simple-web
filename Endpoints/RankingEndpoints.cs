@@ -23,7 +23,7 @@ public static class RankingEndpoints
                     SELECT
                         c.""Name"",
                         c.""Experience"",
-                        cc.""Name"" as ""ClassName"",
+                        split_part(cc.""Name"", '||', 1) as ""ClassName"",
                         (SELECT a.""Value"" FROM data.""StatAttribute"" a
                          JOIN config.""AttributeDefinition"" ad ON a.""DefinitionId"" = ad.""Id""
                          WHERE a.""CharacterId"" = c.""Id"" AND ad.""Designation"" = 'Level' LIMIT 1) as ""Level"",
