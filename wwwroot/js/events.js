@@ -39,9 +39,11 @@ const EVENT_STYLES = {
     'Blood Castle': { css: 'event-blood-castle', icon: '🏰' },
     'Chaos Castle': { css: 'event-chaos-castle', icon: '⚡' },
     'Devil Square': { css: 'event-devil-square', icon: '👹' },
+    'Illusion Temple': { css: 'event-illusion-temple', icon: '🔮' },
     'Happy Hour': { css: 'event-happy-hour', icon: '🎉' },
     'White Wizard Invasion': { css: 'event-white-wizard', icon: '🧙' },
     'Kanturu Refinery Tower': { css: 'event-kanturu', icon: '🗼' },
+    'Crywolf': { css: 'event-crywolf', icon: '🐺' },
     'Castle Siege': { css: 'event-castle-siege', icon: '⚔️' },
 };
 
@@ -53,11 +55,14 @@ function renderEvent(event) {
 
     const countdownSeconds = event.countdownSeconds;
     const nextTimeStr = event.nextRunLocal || null;
-    // Weekly events come with the day of the week (0 = Sunday) of their single start.
-    const dayPrefix = event.dayOfWeek != null && t.eventsDays ? t.eventsDays[event.dayOfWeek] + ' ' : '';
-    const timetableHtml = event.timetable.map(time =>
-        `<span class="event-time-badge${time === nextTimeStr ? ' next' : ''}">${dayPrefix}${time}</span>`
-    ).join('');
+    // Weekly events come with the day of the week (0 = Sunday): Castle Siege only for its single
+    // start (dayOfWeek), Crywolf for each timetable entry (timetableDays).
+    const dayOf = i => event.timetableDays ? event.timetableDays[i] : event.dayOfWeek;
+    const dayPrefix = i => dayOf(i) != null && t.eventsDays ? t.eventsDays[dayOf(i)] + ' ' : '';
+    const timetableHtml = event.timetable.map((time, i) => {
+        const isNext = time === nextTimeStr && dayOf(i) == event.dayOfWeek;
+        return `<span class="event-time-badge${isNext ? ' next' : ''}">${dayPrefix(i)}${time}</span>`;
+    }).join('');
 
     const durationHtml = event.durationMinutes != null
         ? `<div class="event-duration">${(t.eventsDuration || 'Czas trwania') + ': ' + event.durationMinutes + ' ' + (t.eventsMin || 'min')}</div>`
@@ -105,7 +110,7 @@ function updateCountdowns() {
     });
 }
 
-const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Red Dragon Invasion', 'Golden Invasion', 'White Wizard Invasion', 'Kanturu Refinery Tower', 'Castle Siege'];
+const EVENT_ORDER = ['Happy Hour', 'Chaos Castle', 'Blood Castle', 'Devil Square', 'Illusion Temple', 'Red Dragon Invasion', 'Golden Invasion', 'White Wizard Invasion', 'Kanturu Refinery Tower', 'Crywolf', 'Castle Siege'];
 
 async function loadEvents() {
     const container = document.getElementById('eventsContainer');

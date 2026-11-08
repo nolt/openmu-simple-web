@@ -165,6 +165,14 @@
 .event-kanturu .countdown-number { color: #a3e635; text-shadow: 0 0 20px rgba(163, 230, 53, 0.3); }
 .event-kanturu .event-time-badge.next { background: rgba(163, 230, 53, 0.15); color: #a3e635; border-color: rgba(163, 230, 53, 0.3); }
 
+.event-illusion-temple .event-name { color: #b388ff; }
+.event-illusion-temple .countdown-number { color: #b388ff; text-shadow: 0 0 20px rgba(179, 136, 255, 0.3); }
+.event-illusion-temple .event-time-badge.next { background: rgba(179, 136, 255, 0.15); color: #b388ff; border-color: rgba(179, 136, 255, 0.3); }
+
+.event-crywolf .event-name { color: #a4b0be; }
+.event-crywolf .countdown-number { color: #a4b0be; text-shadow: 0 0 20px rgba(164, 176, 190, 0.3); }
+.event-crywolf .event-time-badge.next { background: rgba(164, 176, 190, 0.15); color: #a4b0be; border-color: rgba(164, 176, 190, 0.3); }
+
 .event-castle-siege .event-name { color: #e67e22; }
 .event-castle-siege .countdown-number { color: #e67e22; text-shadow: 0 0 20px rgba(230, 126, 34, 0.3); }
 .event-castle-siege .event-time-badge.next { background: rgba(230, 126, 34, 0.15); color: #e67e22; border-color: rgba(230, 126, 34, 0.3); }

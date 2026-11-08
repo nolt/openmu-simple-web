@@ -11,6 +11,7 @@ public static class EventsEndpoints
 {
     private static readonly Guid KanturuTypeId = Guid.Parse("A8F3C2D1-9E74-4ECB-8963-08A3697278C4");
     private static readonly Guid CastleSiegeTypeId = Guid.Parse("B7F62FA9-59E6-49E9-B499-0358A14957CF");
+    private static readonly Guid CrywolfTypeId = Guid.Parse("3E8B5C27-9D41-4A6F-B2C8-7F1D6E0A9B34");
 
     // CastleSiegeState.Start, the state in which the siege battle runs.
     private const int CastleSiegeStartState = 7;
@@ -22,6 +23,7 @@ public static class EventsEndpoints
         [Guid.Parse("95E68C14-AD87-4B3C-AF46-45B8F1C3BC2A")] = "Blood Castle",
         [Guid.Parse("3AD96A70-ED24-4979-80B8-169E461E548F")] = "Chaos Castle",
         [Guid.Parse("61C61A58-211E-4D6A-9EA1-D25E0C4A47C5")] = "Devil Square",
+        [Guid.Parse("3AD96A70-ED24-4979-80B8-169E464E545F")] = "Illusion Temple",
         [Guid.Parse("6542E452-9780-45B8-85AE-4036422E9A6E")] = "Happy Hour",
         [Guid.Parse("4B5D0F55-5B26-4447-B9C0-C272E5D0A141")] = "White Wizard Invasion",
         [KanturuTypeId] = "Kanturu Refinery Tower",
@@ -149,6 +151,9 @@ public static class EventsEndpoints
                     }
                 }
 
+                if (await GetCrywolfEventAsync(connection, nowUtc, tz) is { } crywolf)
+                    result.Add(crywolf);
+
                 if (await GetCastleSiegeEventAsync(connection, nowUtc, tz) is { } castleSiege)
                     result.Add(castleSiege);
 
@@ -160,6 +165,114 @@ public static class EventsEndpoints
                     return Results.Json(new { code = "DATABASE_ERROR", message = "Database error. Please try again later." }, statusCode: 500);
             }
         });
+    }
+
+    /// <summary>
+    /// Reads the Crywolf schedule from its plugin configuration and returns the next start. Unlike the periodic
+    /// events, Crywolf has no timetable: it starts on the configured days of the week (<c>StartDays</c>) at the
+    /// configured times (<c>StartTimes</c>), in the server time zone (CrywolfContext.CheckStartAsync).
+    /// The start is the first announcement; the duration runs from there to the end of the battle.
+    /// Returns <c>null</c> when the plugin is inactive, unconfigured or missing (older OpenMU).
+    /// </summary>
+    private static async Task<object?> GetCrywolfEventAsync(System.Data.Common.DbConnection connection, DateTime nowUtc, TimeZoneInfo tz)
+    {
+        string? customConfig;
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = @"
+                SELECT ""CustomConfiguration""
+                FROM config.""PlugInConfiguration""
+                WHERE ""TypeId"" = @typeId::uuid AND ""IsActive"" = true
+                LIMIT 1";
+            var p = command.CreateParameter();
+            p.ParameterName = "typeId";
+            p.Value = CrywolfTypeId;
+            command.Parameters.Add(p);
+            customConfig = await command.ExecuteScalarAsync() as string;
+        }
+
+        if (string.IsNullOrEmpty(customConfig))
+            return null;
+
+        using var doc = JsonDocument.Parse(customConfig);
+        var root = doc.RootElement;
+        var days = ReadList(root, "StartDays")
+            .Select(d => d.ValueKind == JsonValueKind.Number ? (DayOfWeek)d.GetInt32() : Enum.Parse<DayOfWeek>(d.GetString()!, true))
+            .Distinct()
+            .OrderBy(d => d)
+            .ToList();
+        var times = ReadList(root, "StartTimes")
+            .Select(t => TimeOnly.Parse(t.GetString()!))
+            .Distinct()
+            .OrderBy(t => t)
+            .ToList();
+        if (days.Count == 0 || times.Count == 0)
+            return null;
+
+        // Announcements, preparation and battle; the defaults are the ones of CrywolfEventDefinition.
+        var duration = ReadDuration(root, "Notify1Duration", TimeSpan.FromMinutes(10))
+            + ReadDuration(root, "Notify2Duration", TimeSpan.FromMinutes(5))
+            + ReadDuration(root, "ReadyDuration", TimeSpan.FromSeconds(150))
+            + ReadDuration(root, "BattleDuration", TimeSpan.FromMinutes(15));
+
+        var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz);
+        var startOfWeek = nowLocal.Date.AddDays(-(int)nowLocal.DayOfWeek);
+        var occurrences = days
+            .SelectMany(day => times.Select(time => (Day: day, Time: time)))
+            .Select(entry =>
+            {
+                var localTime = DateTime.SpecifyKind(startOfWeek.AddDays((int)entry.Day) + entry.Time.ToTimeSpan(), DateTimeKind.Unspecified);
+                var candidate = TimeZoneInfo.ConvertTimeToUtc(localTime, tz);
+                if (candidate <= nowUtc)
+                {
+                    localTime = localTime.AddDays(7);
+                    candidate = TimeZoneInfo.ConvertTimeToUtc(localTime, tz);
+                }
+
+                return (entry.Day, entry.Time, Utc: candidate);
+            })
+            .OrderBy(o => o.Day)
+            .ThenBy(o => o.Time)
+            .ToList();
+        var next = occurrences.MinBy(o => o.Utc);
+
+        return new
+        {
+            name = "Crywolf",
+            nextRunUtc = next.Utc.ToString("o"),
+            countdownSeconds = (int)(next.Utc - nowUtc).TotalSeconds,
+            durationMinutes = (int)Math.Round(duration.TotalMinutes),
+            timetable = occurrences.Select(o => o.Time.ToString("HH:mm")).ToList(),
+            // Day of the week (0 = Sunday) of each timetable entry.
+            timetableDays = occurrences.Select(o => (int)o.Day).ToList(),
+            nextRunLocal = next.Time.ToString("HH:mm"),
+            experienceMultiplier = (float?)null,
+            dayOfWeek = (int)next.Day,
+        };
+    }
+
+    /// <summary>
+    /// Reads a list of a plugin configuration, which is stored either as a plain array or wrapped in <c>$values</c>.
+    /// </summary>
+    private static IEnumerable<JsonElement> ReadList(JsonElement root, string property)
+    {
+        if (!root.TryGetProperty(property, out var element))
+            return [];
+        if (element.ValueKind == JsonValueKind.Object && element.TryGetProperty("$values", out var values))
+            element = values;
+        return element.ValueKind == JsonValueKind.Array ? element.EnumerateArray().ToList() : [];
+    }
+
+    /// <summary>
+    /// Reads a duration (<c>hh:mm:ss</c>) of a plugin configuration, or the default when it is missing.
+    /// </summary>
+    private static TimeSpan ReadDuration(JsonElement root, string property, TimeSpan defaultValue)
+    {
+        return root.TryGetProperty(property, out var element)
+            && element.ValueKind == JsonValueKind.String
+            && TimeSpan.TryParse(element.GetString(), out var value)
+                ? value
+                : defaultValue;
     }
 
     /// <summary>
