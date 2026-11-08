@@ -86,8 +86,9 @@ Each entry is one target:
 ```js
 downloads: [
     { id: "launcher", icon: "🚀", name: "Launcher", url: "https://...", recommended: true },
+    { id: "android",  icon: "📱", name: "Android",  url: "#", soon: true },
+    { id: "linux",    icon: "🐧", name: "Linux",    url: "https://..." },
     { id: "windows",  icon: "🪟", name: "Windows",  url: "https://..." },
-    { id: "linux",    icon: "🐧", name: "Linux",    url: "#", soon: true },
 ],
 ```
 

@@ -9,8 +9,9 @@ window.muConfig = {
     // an upcoming, non-clickable target.
     downloads: [
         { id: "launcher", icon: "🚀", name: "Launcher", url: "#", recommended: true },
+        { id: "android", icon: "📱", name: "Android", url: "#", soon: true },
+        { id: "linux", icon: "🐧", name: "Linux", url: "#" },
         { id: "windows", icon: "🪟", name: "Windows", url: "#" },
-        { id: "linux", icon: "🐧", name: "Linux", url: "#", soon: true },
     ],
 };
 
@@ -18,7 +19,8 @@ window.muContent = {
     en: {
         welcomeTitle: "Welcome to OpenMU",
         welcomeText: `OpenMU is a free and open-source server emulator for MU Online.
-Experience the game with custom features, active development, and a friendly community.`,
+Experience the game with custom features, active development, and a friendly community.
+To play, you need an open-source game client called MuMain — get it from the Download menu.`,
         rows: [
             [
                 { label: "Experience", value: "x50" },
@@ -44,7 +46,8 @@ Experience the game with custom features, active development, and a friendly com
     pl: {
         welcomeTitle: "Witaj na OpenMU",
         welcomeText: `OpenMU to darmowy, otwartoźródłowy emulator serwera MU Online.
-Graj z customowymi funkcjami, aktywnym rozwojem i przyjazną społecznością.`,
+Graj z customowymi funkcjami, aktywnym rozwojem i przyjazną społecznością.
+Do gry potrzebny jest otwartoźródłowy klient gry o nazwie MuMain — pobierzesz go z menu Pobierz.`,
         rows: [
             [
                 { label: "Doświadczenie", value: "x50" },
