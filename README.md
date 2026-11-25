@@ -15,8 +15,8 @@ Website is multilanguage English and Polish.
 - server status
 - server TOP 10
 - event status info (BC/DS/CC etc.)
-- armory (character equipment viewer): item tooltips like in the game
-  (stats, requirements, options, ancient set bonuses, sockets); the item pictures and the
+- armory (character equipment viewer): the class picture of the character and item tooltips like in the game
+  (stats, requirements, options, ancient set bonuses, sockets); the class renders, item pictures and the
   item data in `wwwroot/data` come from the MU Online game client (MuMain, Season 6)
 - chat commands reference
 

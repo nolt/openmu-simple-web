@@ -450,6 +450,15 @@ tr:nth-child(1) .char-name {
     opacity: 0.9;
 }
 
+/* Class render (full-body figure from the game client): fixed frame height, feet at the bottom. */
+.armory-char-image.has-class {
+    height: 260px;
+    object-fit: contain;
+    object-position: center bottom;
+    opacity: 1;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+}
+
 .armory-char-name {
     color: var(--primary);
     font-size: 1.3rem;

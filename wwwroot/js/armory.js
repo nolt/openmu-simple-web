@@ -26,6 +26,7 @@ async function checkServerStatus() {
         const data = await response.json();
         await window.ItemTooltip.load();
         shownCharacter = data;
+        showClassPicture(data.className);
         statusDot.className = data.online ? 'status-dot online' : 'status-dot offline';
         statusText.innerText = data.online ? (t().online || 'Online') : (t().offline || 'Offline');
     } catch {
@@ -53,6 +54,43 @@ function buildTooltip(item) {
         ? '<div class="tip-gap"></div>'
         : `<div class="tip-line tip-${escapeHtml(l.kind)}">${escapeHtml(l.text)}</div>`).join('');
     return head + lines;
+}
+
+// Class picture of the character: the class's own render, else the base class of its line
+// (e.g. a later evolution), else the neutral placeholder. Files: /img/classes/<class-slug>.webp.
+const CLASS_LINES = {
+    'dark-wizard': ['Dark Wizard', 'Soul Master', 'Grand Master'],
+    'dark-knight': ['Dark Knight', 'Blade Knight', 'Blade Master'],
+    'fairy-elf': ['Fairy Elf', 'Muse Elf', 'High Elf'],
+    'magic-gladiator': ['Magic Gladiator', 'Duel Master'],
+    'dark-lord': ['Dark Lord', 'Lord Emperor'],
+    'summoner': ['Summoner', 'Bloody Summoner', 'Dimension Master'],
+    'rage-fighter': ['Rage Fighter', 'Fist Master'],
+};
+const CHAR_PLACEHOLDER = '/img/char-placeholder.svg';
+
+function classSlug(name) {
+    return String(name).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function showClassPicture(className) {
+    const image = document.getElementById('charImage');
+    const candidates = [classSlug(className)];
+    const line = Object.keys(CLASS_LINES).find(slug => CLASS_LINES[slug].includes(className));
+    if (line) candidates.push(line);
+    const sources = [...new Set(candidates.filter(Boolean))].map(slug => `/img/classes/${slug}.webp`);
+    sources.push(CHAR_PLACEHOLDER);
+
+    // Try the candidates in order; a missing file moves on to the next one.
+    let index = 0;
+    image.onerror = () => {
+        index++;
+        if (index < sources.length) image.src = sources[index];
+        else image.onerror = null;
+    };
+    image.classList.toggle('has-class', sources[0] !== CHAR_PLACEHOLDER);
+    image.alt = className || 'Character';
+    image.src = sources[0];
 }
 
 function moveTooltip(e) {
@@ -113,6 +151,7 @@ async function loadCharacter(name) {
     equip.innerHTML = `<p class="armory-message">...</p>`;
     charInfo.innerHTML = '';
     shownCharacter = null;
+    showClassPicture('');
 
     try {
         const response = await fetch('/api/public/armory/' + encodeURIComponent(name));
@@ -129,6 +168,7 @@ async function loadCharacter(name) {
         const data = await response.json();
         await window.ItemTooltip.load();
         shownCharacter = data;
+        showClassPicture(data.className);
 
         charInfo.innerHTML = `
             <div class="armory-char-name">${escapeHtml(data.name)}</div>

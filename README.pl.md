@@ -15,8 +15,8 @@ Strona jest wielojęzyczna: angielski i polski.
 - status serwera
 - ranking TOP 10
 - informacje o eventach (BC/DS/CC itd.)
-- armory (podgląd ekwipunku postaci): opisy przedmiotów jak w grze
-  (statystyki, wymagania, opcje, bonusy zestawów ancient, sockety); obrazki przedmiotów
+- armory (podgląd ekwipunku postaci): obrazek klasy postaci i opisy przedmiotów jak w grze
+  (statystyki, wymagania, opcje, bonusy zestawów ancient, sockety); rendery klas, obrazki przedmiotów
   i dane przedmiotów w `wwwroot/data` pochodzą z klienta gry MU Online (MuMain, Season 6)
 - lista komend czatu
 
