@@ -1,6 +1,5 @@
 using System.Data;
 using System.Globalization;
-using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenMU_Web.Data;
@@ -30,12 +29,24 @@ public static class ArmoryEndpoints
         public string? AncientSet;
     }
 
-    private sealed class OptionRow
-    {
-        public string OptType = "";
-        public string? Target;
-        public double? Value;
-    }
+    // Names of OpenMU's AggregateType and InputOperator enums, by their stored number.
+    private static readonly string[] AggregateTypes = { "AddRaw", "Multiplicate", "AddFinal", "Maximum" };
+    private static readonly string[] InputOperators = { "Multiply", "Add", "Exponentiate", "ExponentiateByAttribute", "Maximum", "Minimum" };
+
+    /// <summary>
+    /// One option of an equipped item, in the shape of OpenMU's website API (WebsiteItemOption),
+    /// so the browser can describe it like the game client (see wwwroot/js/item-tooltip.js).
+    /// </summary>
+    private sealed record OptionRow(
+        string Type,
+        int Number,
+        int Level,
+        string? Attribute,
+        double? Value,
+        string? Aggregate,
+        string? RelatedAttribute,
+        string? RelatedOperator,
+        double? RelatedOperand);
 
     public static void MapArmoryEndpoints(this WebApplication app)
     {
@@ -141,9 +152,10 @@ public static class ArmoryEndpoints
                     }
                 }
 
-                // 3. Concrete options of those items, with the resolved target attribute and value.
-                //    Level dependent options (e.g. the regular "+option") take their value from the
-                //    matching ItemOptionOfLevel; the others use the option's own power up definition.
+                // 3. Structured options of those items, resolved like OpenMU's website API
+                //    (WebsiteItemDetails.CreateOption): the power-up of the option's level if the option
+                //    is level dependent, else its own one. Options of LevelType.ItemLevel (1, e.g. the wing
+                //    options) take the item's level instead of the link's level, like the game logic.
                 var optionsByItem = new Dictionary<Guid, List<OptionRow>>();
                 if (rows.Count > 0)
                 {
@@ -151,30 +163,33 @@ public static class ArmoryEndpoints
                         SELECT
                             ol.""ItemId"" as ""ItemId"",
                             split_part(ot.""Name"", '||', 1) as ""OptType"",
-                            COALESCE(
-                                (SELECT ad.""Designation"" FROM config.""ItemOptionOfLevel"" lvl
-                                 JOIN config.""PowerUpDefinition"" p ON lvl.""PowerUpDefinitionId"" = p.""Id""
-                                 JOIN config.""AttributeDefinition"" ad ON p.""TargetAttributeId"" = ad.""Id""
-                                 WHERE lvl.""IncreasableItemOptionId"" = io.""Id"" AND lvl.""Level"" = ol.""Level"" LIMIT 1),
-                                (SELECT ad.""Designation"" FROM config.""PowerUpDefinition"" p
-                                 JOIN config.""AttributeDefinition"" ad ON p.""TargetAttributeId"" = ad.""Id""
-                                 WHERE p.""Id"" = io.""PowerUpDefinitionId"" LIMIT 1)
-                            ) as ""Target"",
-                            COALESCE(
-                                (SELECT v.""Value"" FROM config.""ItemOptionOfLevel"" lvl
-                                 JOIN config.""PowerUpDefinition"" p ON lvl.""PowerUpDefinitionId"" = p.""Id""
-                                 JOIN config.""PowerUpDefinitionValue"" v ON p.""BoostId"" = v.""Id""
-                                 WHERE lvl.""IncreasableItemOptionId"" = io.""Id"" AND lvl.""Level"" = ol.""Level"" LIMIT 1),
-                                (SELECT v.""Value"" FROM config.""PowerUpDefinition"" p
-                                 JOIN config.""PowerUpDefinitionValue"" v ON p.""BoostId"" = v.""Id""
-                                 WHERE p.""Id"" = io.""PowerUpDefinitionId"" LIMIT 1)
-                            ) as ""Value""
+                            io.""Number"" as ""OptNumber"",
+                            ol.""Level"" as ""OptLevel"",
+                            ad.""Designation"" as ""Target"",
+                            v.""Value"" as ""Value"",
+                            v.""AggregateType"" as ""Aggregate"",
+                            rel.""Designation"" as ""RelatedAttribute"",
+                            rel.""InputOperator"" as ""RelatedOperator"",
+                            rel.""InputOperand"" as ""RelatedOperand""
                         FROM data.""Item"" i
                         JOIN data.""ItemOptionLink"" ol ON ol.""ItemId"" = i.""Id""
                         JOIN config.""IncreasableItemOption"" io ON ol.""ItemOptionId"" = io.""Id""
                         JOIN config.""ItemOptionType"" ot ON io.""OptionTypeId"" = ot.""Id""
-                        WHERE i.""ItemStorageId"" = @inventoryId AND i.""ItemSlot"" BETWEEN 0 AND 11
-                        ORDER BY ol.""ItemId"", ot.""Name""";
+                        LEFT JOIN config.""PowerUpDefinition"" p ON p.""Id"" = COALESCE(
+                            (SELECT lvl.""PowerUpDefinitionId"" FROM config.""ItemOptionOfLevel"" lvl
+                             WHERE lvl.""IncreasableItemOptionId"" = io.""Id""
+                               AND lvl.""Level"" = CASE WHEN io.""LevelType"" = 1 THEN i.""Level"" ELSE ol.""Level"" END
+                             LIMIT 1),
+                            io.""PowerUpDefinitionId"")
+                        LEFT JOIN config.""AttributeDefinition"" ad ON p.""TargetAttributeId"" = ad.""Id""
+                        LEFT JOIN config.""PowerUpDefinitionValue"" v ON p.""BoostId"" = v.""Id""
+                        LEFT JOIN LATERAL (
+                            SELECT ia.""Designation"", r.""InputOperator"", r.""InputOperand""
+                            FROM config.""AttributeRelationship"" r
+                            LEFT JOIN config.""AttributeDefinition"" ia ON r.""InputAttributeId"" = ia.""Id""
+                            WHERE r.""PowerUpDefinitionValueId"" = v.""Id""
+                            LIMIT 1) rel ON true
+                        WHERE i.""ItemStorageId"" = @inventoryId AND i.""ItemSlot"" BETWEEN 0 AND 11";
 
                     using var command = connection.CreateCommand();
                     command.CommandText = optionsSql;
@@ -189,23 +204,49 @@ public static class ArmoryEndpoints
                             optionsByItem[itemId] = list;
                         }
 
-                        list.Add(new OptionRow
-                        {
-                            OptType = reader["OptType"].ToString() ?? "",
-                            Target = reader["Target"] != DBNull.Value ? reader["Target"].ToString() : null,
-                            Value = reader["Value"] != DBNull.Value ? Convert.ToDouble(reader["Value"]) : null,
-                        });
+                        list.Add(new OptionRow(
+                            reader["OptType"].ToString() ?? "",
+                            Convert.ToInt32(reader["OptNumber"]),
+                            Convert.ToInt32(reader["OptLevel"]),
+                            reader["Target"] as string,
+                            reader["Value"] != DBNull.Value ? Convert.ToDouble(reader["Value"]) : null,
+                            reader["Aggregate"] != DBNull.Value ? EnumName(AggregateTypes, Convert.ToInt32(reader["Aggregate"])) : null,
+                            reader["RelatedAttribute"] as string,
+                            reader["RelatedOperator"] != DBNull.Value ? EnumName(InputOperators, Convert.ToInt32(reader["RelatedOperator"])) : null,
+                            reader["RelatedOperand"] != DBNull.Value ? Convert.ToDouble(reader["RelatedOperand"]) : null));
                     }
                 }
 
+                // The same item fields as the website API (WebsiteItem); the tooltip is built in the browser.
                 var items = rows.Select(r => new
                 {
                     slot = r.Slot,
-                    image = BuildImageName(r.Group, r.Number, r.Level, r.Slot, r.Excellent, r.AncientSet != null),
-                    description = BuildDescription(r, optionsByItem.GetValueOrDefault(r.Id)),
-                    excellent = r.Excellent,
-                    ancient = r.AncientSet != null,
+                    group = r.Group,
+                    number = r.Number,
+                    name = r.Name,
+                    level = r.Level,
+                    isExcellent = r.Excellent,
+                    isAncient = r.AncientSet != null,
+                    ancientSetName = r.AncientSet,
                     sockets = r.Sockets,
+                    hasSkill = r.HasSkill,
+                    image = BuildImageName(r.Group, r.Number, r.Level, r.Slot, r.Excellent, r.AncientSet != null),
+                    options = (optionsByItem.GetValueOrDefault(r.Id) ?? new List<OptionRow>())
+                        .OrderBy(o => o.Type, StringComparer.Ordinal)
+                        .ThenBy(o => o.Number)
+                        .Select(o => new
+                        {
+                            type = o.Type,
+                            number = o.Number,
+                            level = o.Level,
+                            attribute = o.Attribute,
+                            value = o.Value,
+                            aggregate = o.Aggregate,
+                            relatedAttribute = o.RelatedAttribute,
+                            relatedOperator = o.RelatedOperator,
+                            relatedOperand = o.RelatedOperand,
+                        })
+                        .ToList(),
                 }).ToList();
 
                 return Results.Ok(new { name, className, level, resets, masterLevel, items });
@@ -237,91 +278,6 @@ public static class ArmoryEndpoints
         return $"item_{group}_{number}_{effectLevel}{suffix}.png";
     }
 
-    private static string BuildDescription(ItemRow item, List<OptionRow>? options)
-    {
-        var header = new StringBuilder();
-        if (item.Excellent)
-        {
-            header.Append("Excellent ");
-        }
-
-        if (!string.IsNullOrEmpty(item.AncientSet))
-        {
-            header.Append(item.AncientSet).Append(' ');
-        }
-
-        header.Append(item.Name);
-        if (item.Level > 0)
-        {
-            header.Append('+').Append(item.Level);
-        }
-
-        // Each meaningful option is listed on its own line so the tooltip explains the item.
-        var lines = new List<string> { header.ToString() };
-        var allOptions = options ?? Enumerable.Empty<OptionRow>();
-
-        // Luck is always listed first, directly under the item name.
-        if (allOptions.Any(o => o.OptType.StartsWith("Luck", StringComparison.Ordinal)))
-        {
-            lines.Add("+ Luck");
-        }
-
-        // Then all the other options.
-        foreach (var option in allOptions)
-        {
-            if (option.OptType.StartsWith("Luck", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            // Individual socket seeds are represented by the socket count below.
-            if (option.OptType == "Socket Option" || string.IsNullOrEmpty(option.Target))
-            {
-                continue;
-            }
-
-            // The value is only shown for additive "Option" bonuses; the others (excellent, wing,
-            // fenrir, guardian, ...) are often percentages/chances, so they are listed by name only.
-            var line = option.OptType switch
-            {
-                "Option" => $"+ {option.Target}{FormatValue(option.Value)}",
-                "Excellent Option" => $"+ Exc: {option.Target}",
-                "Wing Option" => $"+ Wing: {option.Target}",
-                "Socket Bonus Option" => $"+ Socket Bonus: {option.Target}",
-                _ => $"+ {option.Target}",
-            };
-            lines.Add(line);
-        }
-
-        if (item.Sockets > 0)
-        {
-            lines.Add($"+ {item.Sockets} Socket{(item.Sockets > 1 ? "s" : "")}");
-        }
-
-        // Skill is always listed last.
-        if (item.HasSkill)
-        {
-            lines.Add("+ Skill");
-        }
-
-        return string.Join("\n", lines);
-    }
-
-    private static string FormatValue(double? value)
-    {
-        if (value is null)
-        {
-            return string.Empty;
-        }
-
-        // Option values are additive, so show them as a rounded "+N" bonus. Fractional values below 1
-        // are multipliers/percentages rather than flat bonuses, so they are shown by name only (no "+0").
-        var rounded = Math.Round(value.Value, MidpointRounding.AwayFromZero);
-        if (Math.Abs(rounded) < 1)
-        {
-            return string.Empty;
-        }
-
-        return " +" + rounded.ToString("0", CultureInfo.InvariantCulture);
-    }
+    private static string EnumName(string[] names, int value)
+        => value >= 0 && value < names.Length ? names[value] : value.ToString(CultureInfo.InvariantCulture);
 }

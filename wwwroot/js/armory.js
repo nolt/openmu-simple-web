@@ -24,6 +24,8 @@ async function checkServerStatus() {
     try {
         const response = await fetch('/api/public/server-status');
         const data = await response.json();
+        await window.ItemTooltip.load();
+        shownCharacter = data;
         statusDot.className = data.online ? 'status-dot online' : 'status-dot offline';
         statusText.innerText = data.online ? (t().online || 'Online') : (t().offline || 'Offline');
     } catch {
@@ -39,21 +41,18 @@ function escapeHtml(value) {
         ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-// Custom, themed item tooltip (replaces the native browser title tooltip).
+// Custom, themed item tooltip (replaces the native browser title tooltip). The lines are built
+// like the game client's tooltip by item-tooltip.js; the shown character is kept for it.
 const itemTooltip = document.getElementById('itemTooltip');
+let shownCharacter = null;
 
-function buildTooltip(desc) {
-    const lines = desc.split('\n');
-    const head = `<div class="tip-head">${escapeHtml(lines[0])}</div>`;
-    const opts = lines.slice(1).map(line => {
-        let cls = 'tip-line';
-        if (line.startsWith('+ Exc')) cls += ' exc';
-        else if (line.startsWith('+ Skill')) cls += ' skill';
-        else if (line.includes('Socket')) cls += ' sock';
-        else cls += ' opt';
-        return `<div class="${cls}">${escapeHtml(line)}</div>`;
-    }).join('');
-    return head + opts;
+function buildTooltip(item) {
+    const tip = window.ItemTooltip.build(item, shownCharacter);
+    const head = `<div class="tip-head tip-${escapeHtml(tip.titleKind)}">${escapeHtml(tip.title)}</div>`;
+    const lines = tip.lines.map(l => l.kind === 'gap'
+        ? '<div class="tip-gap"></div>'
+        : `<div class="tip-line tip-${escapeHtml(l.kind)}">${escapeHtml(l.text)}</div>`).join('');
+    return head + lines;
 }
 
 function moveTooltip(e) {
@@ -69,8 +68,9 @@ function moveTooltip(e) {
 
 document.addEventListener('mouseover', e => {
     const slot = e.target.closest?.('.armory-slot.filled');
-    if (!slot || !slot.dataset.tip) return;
-    itemTooltip.innerHTML = buildTooltip(slot.dataset.tip);
+    const item = slot && shownCharacter ? shownCharacter.items[Number(slot.dataset.index)] : null;
+    if (!item) return;
+    itemTooltip.innerHTML = buildTooltip(item);
     itemTooltip.style.display = 'block';
     moveTooltip(e);
 });
@@ -84,7 +84,7 @@ document.addEventListener('mouseout', e => {
 function renderEquip(items) {
     const equip = document.getElementById('armoryEquip');
     const bySlot = {};
-    items.forEach(it => bySlot[it.slot] = it);
+    items.forEach((it, index) => bySlot[it.slot] = { ...it, index });
 
     const cells = SLOTS.map(def => {
         const item = bySlot[def.slot];
@@ -93,11 +93,11 @@ function renderEquip(items) {
             return `<div class="armory-slot empty" style="${style}"><span class="slot-label">${def.label}</span></div>`;
         }
         const badges =
-            (item.excellent ? '<span class="badge exc">EXC</span>' : '') +
-            (item.ancient ? '<span class="badge anc">ANC</span>' : '') +
+            (item.isExcellent ? '<span class="badge exc">EXC</span>' : '') +
+            (item.isAncient ? '<span class="badge anc">ANC</span>' : '') +
             (item.sockets > 0 ? `<span class="badge sock">${item.sockets}S</span>` : '');
-        return `<div class="armory-slot filled" style="${style}" data-tip="${escapeHtml(item.description)}">
-                    <img src="/img/items/${escapeHtml(item.image)}" alt="${escapeHtml(item.description)}"
+        return `<div class="armory-slot filled" style="${style}" data-index="${item.index}">
+                    <img src="/img/items/${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}"
                          onerror="this.classList.add('img-missing')">
                     ${badges}
                 </div>`;
@@ -112,6 +112,7 @@ async function loadCharacter(name) {
     const tr = t();
     equip.innerHTML = `<p class="armory-message">...</p>`;
     charInfo.innerHTML = '';
+    shownCharacter = null;
 
     try {
         const response = await fetch('/api/public/armory/' + encodeURIComponent(name));
@@ -126,6 +127,8 @@ async function loadCharacter(name) {
         }
 
         const data = await response.json();
+        await window.ItemTooltip.load();
+        shownCharacter = data;
 
         charInfo.innerHTML = `
             <div class="armory-char-name">${escapeHtml(data.name)}</div>

@@ -558,7 +558,7 @@ tr:nth-child(1) .char-name {
     position: fixed;
     z-index: 1000;
     pointer-events: none;
-    max-width: 320px;
+    max-width: min(360px, calc(100vw - 16px));
     padding: 10px 13px;
     background: rgba(15, 15, 15, 0.95);
     border: 1px solid rgba(212, 175, 55, 0.45);
@@ -581,10 +581,43 @@ tr:nth-child(1) .char-name {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.item-tooltip .tip-line.opt { color: #4aa3ff; }   /* normal options & luck - blue */
-.item-tooltip .tip-line.exc { color: #2ecc71; }   /* excellent options - green */
-.item-tooltip .tip-line.skill { color: #ffffff; } /* skill - white */
-.item-tooltip .tip-line.sock { color: #b18bd8; }  /* sockets - purple */
+.item-tooltip { text-align: center; }
+
+/* Tooltip colours of the game client (item-tooltip.js sets tip-<kind> on the title and every line):
+   blue options, green excellent title and notes, gold ancient/+7 and harmony, purple sockets. */
+.item-tooltip .tip-line { color: #80aeff; }
+.item-tooltip .tip-stat,
+.item-tooltip .tip-plain { color: #e8e6e1; }
+.item-tooltip .tip-option,
+.item-tooltip .tip-skill,
+.item-tooltip .tip-luck,
+.item-tooltip .tip-wing,
+.item-tooltip .tip-line.tip-excellent { color: #80aeff; } /* the client writes excellent options in option blue */
+.item-tooltip .tip-head.tip-excellent,
+.item-tooltip .tip-note { color: #62e36a; }
+.item-tooltip .tip-ancient,
+.item-tooltip .tip-harmony { color: #e2c15e; }
+.item-tooltip .tip-set { color: #00ff00; }
+.item-tooltip .tip-guardian { color: #e0609f; }
+.item-tooltip .tip-socket,
+.item-tooltip .tip-violet { color: #b98cf0; }
+.item-tooltip .tip-purple { color: #ef6af0; }
+.item-tooltip .tip-requirement { color: #ff6060; }
+.item-tooltip .tip-muted { color: #a3a19c; }
+.item-tooltip .tip-head.tip-option { color: #80aeff; }
+.item-tooltip .tip-head.tip-plain { color: #e8e6e1; }
+/* Ancient set item title: green on a blue bar (TEXT_COLOR_GREEN_BLUE in the client). */
+.item-tooltip .tip-head.tip-set {
+    background: #3c3cc8;
+    border-radius: 3px;
+    padding: 2px 6px;
+}
+/* Bold blue lines, e.g. "Wizardry Dmg 70% rise" of staffs. */
+.item-tooltip .tip-emphasis { color: #80aeff; font-weight: bold; }
+/* Class notes of a skill, e.g. "Knight specific skill": white on a dark red bar. */
+.item-tooltip .tip-darkred { color: #fff; background: #a00000; }
+/* Empty row between the blocks (stats, classes, options, set). */
+.item-tooltip .tip-gap { height: 0.6em; }
 
 /* armory paper-doll stacks earlier (640px) than the global phone breakpoint */
 @media (max-width: 640px) {
