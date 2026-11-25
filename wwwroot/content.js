@@ -39,7 +39,7 @@ To play, you need an open-source game client called MuMain — get it from the D
                 { label: "Version", value: "Season 6 Ep 3" },
             ],
             [
-                { label: "Discord", value: "Join our Discord", url: "https://discord.gg/your-invite" },
+                { label: "Discord", value: "Join our Discord", url: "#" },
             ],
         ],
     },
@@ -66,7 +66,7 @@ Do gry potrzebny jest otwartoźródłowy klient gry o nazwie MuMain — pobierze
                 { label: "Wersja", value: "Sezon 6 Ep 3" },
             ],
             [
-                { label: "Discord", value: "Dołącz na Discord", url: "https://discord.gg/your-invite" },
+                { label: "Discord", value: "Dołącz na Discord", url: "#" },
             ],
         ],
     }
