@@ -49,7 +49,8 @@ Zrób to przed utworzeniem pierwszego administratora, żeby licznik nie znikał.
 ## Dodawanie nowego języka
 
 Wszystkie podstrony korzystają z jednego układu Razor (`Pages/Shared/_Layout.cshtml`), więc dodanie
-języka oznacza edycję **jednej listy w konfiguracji** — bez zmian w poszczególnych podstronach.
+języka oznacza edycję **jednej listy w konfiguracji** — bez zmian w poszczególnych podstronach (tylko
+opisy przedmiotów w armory mają własny plik tekstów, patrz krok 4).
 
 1. **Utwórz plik tłumaczenia**
    - Skopiuj `wwwroot/template_lang.js` (pusty szkielet ze wszystkimi kluczami) — albo już
@@ -72,7 +73,13 @@ języka oznacza edycję **jednej listy w konfiguracji** — bez zmian w poszczeg
    Stawki i tekst powitalny na stronie głównej pochodzą z `window.muContent` w `wwwroot/content.js`.
    Dodaj tam sekcję swojego języka, według tego samego wzoru co `en` i `pl`.
 
-4. **Gotowe**
+4. **Przetłumacz opisy przedmiotów w armory (opcjonalnie)**
+   Teksty tooltipa mają własny plik: skopiuj `wwwroot/js/item-texts.pl.js` np. do
+   `item-texts.de.js`, zmień `window.muItemTexts.pl` na `.de`, przetłumacz wartości (kluczami są
+   teksty angielskie) i dołącz plik w `Pages/Armory.cshtml` obok polskiego. Bez tego tooltip zostaje
+   po angielsku.
+
+5. **Gotowe**
    `lang.js` sam buduje przyciski przełączania z każdego języka znalezionego w
    `window.muTranslations` — bez ręcznej edycji przycisków na podstronach. Etykietą przycisku jest
    kod wielkimi literami (np. `DE`); ładniejszą etykietę ustawisz, dodając wpis do mapy `LABELS`
@@ -101,6 +108,9 @@ downloads: [
 
 Platformę dodajesz lub usuwasz, edytując tę listę — bez zmian w kodzie strony. Ogólne etykiety
 (Pobierz / zalecane / wkrótce) pochodzą z kluczy `dl*` w plikach językowych.
+
+Link do Discorda w szczegółach na stronie głównej (`url` wpisów `Discord` w `window.muContent`,
+po jednym na język) to również zaślepka `#` — wpisz tam zaproszenie na swój serwer.
 
 ---
 Przykład:

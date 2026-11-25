@@ -49,7 +49,8 @@ Do this before creating the first admin, so the counter does not blink.
 ## Adding a new language
 
 The pages share a single Razor layout (`Pages/Shared/_Layout.cshtml`), so adding a language
-means editing **one config list** — no per-page changes.
+means editing **one config list** — no per-page changes (only the armory item tooltip has its own
+text file, see step 4).
 
 1. **Create a translation file**
    - Copy `wwwroot/template_lang.js` (an empty skeleton with every key) — or the
@@ -72,7 +73,13 @@ means editing **one config list** — no per-page changes.
    The homepage rates and welcome text come from `window.muContent` in `wwwroot/content.js`.
    Add your language section there, following the same pattern as `en` and `pl`.
 
-4. **Done**
+4. **Translate the armory item tooltip (optional)**
+   The tooltip texts have their own file: copy `wwwroot/js/item-texts.pl.js` to e.g.
+   `item-texts.de.js`, change `window.muItemTexts.pl` to `.de`, translate the values (the keys are
+   the English texts) and include it in `Pages/Armory.cshtml` next to the Polish one. Without it the
+   tooltip stays in English.
+
+5. **Done**
    `lang.js` builds the switch buttons automatically from every language found in
    `window.muTranslations` — no per-page button editing. The button label is the uppercased
    code (e.g. `DE`); for a nicer label add an entry to the `LABELS` map in `wwwroot/lang.js`.
@@ -100,6 +107,9 @@ downloads: [
 
 Add or remove a platform by editing this list — no markup changes. The generic labels
 (Download / recommended / soon) come from the `dl*` keys in the language files.
+
+The Discord link in the home page details (`url` of the `Discord` entries in `window.muContent`,
+one per language) is a `#` placeholder as well — put your server's invite there.
 
 ---
 Example:
