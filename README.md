@@ -118,6 +118,21 @@ Example:
 More info about OpenMU project you will find here:
 https://github.com/MUnique/OpenMU
 
+## Behind a reverse proxy (HAProxy, nginx…)
+
+Registration (1 account per 24h per IP), password change and the API rate limits work per
+visitor IP. Behind a proxy the site sees only the proxy's address, so all visitors share
+one limit. To fix it:
+
+1. Let the proxy send the visitor IP: HAProxy `option forwardfor` in the backend
+   (`mode http`), nginx `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`.
+2. Put the address the proxy connects from into `.env` as `TRUSTED_PROXIES=...`
+   (comma separated IPs or CIDR). For a proxy on the Docker host that is the gateway of the
+   site's Docker network: `docker inspect openmu-website -f '{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}'`.
+3. Restart the site.
+
+Only listed proxies are trusted, so visitors cannot fake the header to bypass the limits.
+
 ## License
 [MIT](LICENSE)
 

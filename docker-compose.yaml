@@ -13,6 +13,7 @@ services:
       - ServerCheck__Host=${SERVER_CHECK_HOST:-openmu-server}
       - ServerCheck__Port=${SERVER_CHECK_PORT:-44406}
       - ServerCheck__ApiKey=${SERVER_CHECK_API_KEY:-}
+      - ReverseProxy__TrustedProxies=${TRUSTED_PROXIES:-}
       - TZ=${TIMEZ}
     networks:
       - openmu-network

@@ -119,6 +119,21 @@ Przykład:
 Więcej informacji o projekcie OpenMU:
 https://github.com/MUnique/OpenMU
 
+## Za reverse proxy (HAProxy, nginx…)
+
+Rejestracja (1 konto na 24h na IP), zmiana hasła i limity zapytań API liczą się per IP
+odwiedzającego. Za proxy strona widzi tylko adres proxy, więc wszyscy dzielą jeden limit.
+Żeby to naprawić:
+
+1. Proxy ma przekazywać IP odwiedzającego: HAProxy `option forwardfor` w backendzie
+   (`mode http`), nginx `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`.
+2. Wpisz do `.env` adres, z którego łączy się proxy: `TRUSTED_PROXIES=...`
+   (IP lub CIDR po przecinku). Dla proxy na hoście Dockera to bramka sieci Dockera strony:
+   `docker inspect openmu-website -f '{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}'`.
+3. Zrestartuj stronę.
+
+Ufamy tylko wpisanym proxy, więc odwiedzający nie obejdą limitów podrobionym nagłówkiem.
+
 ## Licencja
 [MIT](LICENSE)
 

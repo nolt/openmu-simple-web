@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using OpenMU_Web.Data;
@@ -27,7 +28,27 @@ builder.Services.AddKeyedSingleton<RateLimiter>("events");
 builder.Services.AddKeyedSingleton<RateLimiter>("armory");
 builder.Services.AddHttpClient();
 
+// Behind a reverse proxy (e.g. HAProxy) every connection comes from the proxy, so all
+// visitors would share one IP and one rate-limit bucket (one registration per 24h for
+// everybody). X-Forwarded-For is honoured only from the proxies listed in
+// ReverseProxy:TrustedProxies (comma separated IPs or CIDR ranges); otherwise any
+// client could fake the header and bypass the per-IP limits.
+var forwardedOptions = new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedFor };
+foreach (var entry in (builder.Configuration["ReverseProxy:TrustedProxies"] ?? string.Empty)
+             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+{
+    var slash = entry.IndexOf('/');
+    if (slash < 0)
+        forwardedOptions.KnownProxies.Add(System.Net.IPAddress.Parse(entry));
+    else
+        forwardedOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+            System.Net.IPAddress.Parse(entry[..slash]), int.Parse(entry[(slash + 1)..])));
+}
+
 var app = builder.Build();
+
+// Must run first, so every endpoint below sees the real client IP.
+app.UseForwardedHeaders(forwardedOptions);
 
 app.UseCors("AllowAll");
 
