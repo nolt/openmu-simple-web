@@ -2,10 +2,15 @@
 /** Home page: welcome text and server details (from the site config), status, players, downloads. */
 $page = ['title' => '', 'containerClass' => 'index-container', 'active' => '/',
     'styles' => ['/css/index.css'], 'scripts' => ['/js/index.js']];
+
+// The title is in the page from the start (in the default language), so it doesn't flicker
+// until the script has put in the visitor's language.
+$siteConfig = \SimpleWeb\Config::site();
+$welcomeTitle = (string)($siteConfig['content'][$siteConfig['defaultLanguage'] ?? '']['welcomeTitle'] ?? '');
 ?>
 <div class="index-grid">
     <div class="index-left">
-        <div class="index-title" id="welcomeTitle">Welcome to OpenMU</div>
+        <div class="index-title" id="welcomeTitle"><?= htmlspecialchars($welcomeTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
         <div class="index-text" id="welcomeText"></div>
         <div class="details-list" id="detailsList"></div>
     </div>

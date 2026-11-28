@@ -30,21 +30,15 @@ if ($path !== '/') {
     $path = rtrim($path, '/');
 }
 
-$pages = [
-    '/' => 'index',
-    '/stats' => 'stats',
-    '/armory' => 'armory',
-    '/events' => 'events',
-    '/commands' => 'commands',
-    '/register' => 'register',
-    '/changepass' => 'changepass',
-];
-
 if ($method === 'GET' || $method === 'HEAD') {
-    if (isset($pages[$path])) {
+    // Every view in views/pages/ is a page: "/" is index.php, "/stats" is stats.php, and so on.
+    // A new page is just a new file there (plus a link in the "nav" setting).
+    $view = $path === '/' ? 'index' : substr($path, 1);
+    if (preg_match('/^[a-z][a-z0-9-]*$/', $view) && $path !== '/index' && is_file(__DIR__ . '/views/pages/' . $view . '.php')) {
         $page = [];
+        $route = $path;
         ob_start();
-        require __DIR__ . '/views/pages/' . $pages[$path] . '.php';
+        require __DIR__ . '/views/pages/' . $view . '.php';
         $body = ob_get_clean();
         header('Content-Type: text/html; charset=utf-8');
         require __DIR__ . '/views/layout.php';

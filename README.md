@@ -103,6 +103,16 @@ return [
 The Discord link in the home page details (`url` of the `Discord` entry in `content`, one per
 language) is a `#` placeholder as well - put your server's invite there.
 
+### Navigation, tab titles, own pages
+
+- `nav` - the links of the footer: `[path, translation key, text]`, in this order.
+- `pageTitles` - tab titles of single pages, e.g. `['/' => 'MyMU - The best server']`; pages
+  without one are titled "`siteName` - page".
+- An own page is a view in `app/views/pages/<name>.php` (see the existing ones) - it is served at
+  `/<name>` - plus its link in `nav`. Keep own views in a fork of your own; an update doesn't
+  delete them, but they are part of the code, not of the config.
+- With a single language in `languages`, the language switch is hidden.
+
 ### Event timetable
 
 The OpenMU API tells the next start of each active event, so every event shows its countdown and

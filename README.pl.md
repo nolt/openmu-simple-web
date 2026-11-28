@@ -103,6 +103,16 @@ return [
 Link do Discorda w danych serwera na stronie głównej (`url` pozycji `Discord` w `content`, osobno dla
 każdego języka) to również zaślepka `#` - wpisz tam zaproszenie na swój serwer.
 
+### Nawigacja, tytuły kart, własne strony
+
+- `nav` - linki w stopce: `[ścieżka, klucz tłumaczenia, tekst]`, w tej kolejności.
+- `pageTitles` - tytuły kart pojedynczych stron, np. `['/' => 'MyMU - Najlepszy serwer']`; strony
+  bez wpisu mają tytuł „`siteName` - strona”.
+- Własna strona to widok w `app/views/pages/<nazwa>.php` (wzoruj się na istniejących) - jest dostępna
+  pod `/<nazwa>` - plus link w `nav`. Własne widoki trzymaj we własnym forku; aktualizacja ich nie
+  usuwa, ale to część kodu, a nie configu.
+- Przy jednym języku w `languages` przełącznik języka jest ukryty.
+
 ### Rozkład eventów
 
 API OpenMU podaje najbliższy start każdego aktywnego eventu, więc każdy event pokazuje odliczanie

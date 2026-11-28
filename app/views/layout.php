@@ -4,9 +4,10 @@
  * the page body, the footer navigation and the page's own scripts.
  *
  * Expects from the front controller:
- *   $page  page settings set by the page view (title, bodyClass, containerClass, active, styles,
- *          scripts, bodyEnd, footerNav)
- *   $body  the rendered page body
+ *   $page   page settings set by the page view (title, bodyClass, containerClass, active, styles,
+ *           scripts, bodyEnd, footerNav)
+ *   $body   the rendered page body
+ *   $route  the path of the page, e.g. "/stats"
  */
 
 declare(strict_types=1);
@@ -21,17 +22,15 @@ $languages = array_values(array_filter((array)($site['languages'] ?? ['en']),
     static fn ($code): bool => is_string($code) && preg_match('/^[a-z]{2,3}(-[A-Za-z]{2,4})?$/', $code) === 1));
 $defaultLanguage = in_array($site['defaultLanguage'] ?? '', $languages, true) ? $site['defaultLanguage'] : ($languages[0] ?? 'en');
 
+// Tab title: the one set for this page in the config, else "<siteName> - <page title>".
 $siteName = (string)($site['siteName'] ?? 'OpenMU');
-$title = ($page['title'] ?? '') === '' ? $siteName : $siteName . ' - ' . $page['title'];
+$customTitle = $site['pageTitles'][$route] ?? '';
+$title = is_string($customTitle) && $customTitle !== ''
+    ? $customTitle
+    : (($page['title'] ?? '') === '' ? $siteName : $siteName . ' - ' . $page['title']);
 
-// Footer navigation shared by every page; the current page is left out.
-$nav = [
-    ['/', 'navHome', 'Home'],
-    ['/stats', 'navStats', 'Server Stats'],
-    ['/armory', 'navArmory', 'Armory'],
-    ['/events', 'navEvents', 'Events'],
-    ['/commands', 'navCommands', 'Commands'],
-];
+// Footer navigation shared by every page (from the config); the current page is left out.
+$nav = array_values(array_filter((array)($site['nav'] ?? []), static fn ($link): bool => is_array($link) && count($link) === 3));
 $active = $page['active'] ?? null;
 if (isset($page['footerNav'])) {
     // The account pages bring their own links.
@@ -61,14 +60,16 @@ if (isset($page['footerNav'])) {
 
 <body class="<?= $e($page['bodyClass'] ?? '') ?>">
     <div class="container <?= $e($page['containerClass'] ?? '') ?>">
+<?php if (count($languages) > 1): // A single language needs no switch. ?>
         <div class="lang-switch" id="lang-switch"></div>
+<?php endif; ?>
 
 <?= $body ?>
 
         <div class="footer-nav">
-<?php foreach ($nav as [$route, $key, $label]): ?>
-<?php if ($route !== $active): ?>
-            <a href="<?= $e($route) ?>" class="nav-link"><span data-i18n="<?= $e($key) ?>"><?= $e($label) ?></span></a>
+<?php foreach ($nav as [$href, $key, $label]): ?>
+<?php if ($href !== $active): ?>
+            <a href="<?= $e((string)$href) ?>" class="nav-link"><span data-i18n="<?= $e((string)$key) ?>"><?= $e((string)$label) ?></span></a>
 <?php endif; ?>
 <?php endforeach; ?>
         </div>

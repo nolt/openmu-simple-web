@@ -20,6 +20,20 @@ return [
     'languages' => ['en', 'pl'],
     'defaultLanguage' => 'en',
 
+    // Links of the footer navigation: [path, translation key, text before the translation].
+    // A page of its own is a view in app/views/pages/<name>.php plus a link here.
+    'nav' => [
+        ['/', 'navHome', 'Home'],
+        ['/stats', 'navStats', 'Server Stats'],
+        ['/armory', 'navArmory', 'Armory'],
+        ['/events', 'navEvents', 'Events'],
+        ['/commands', 'navCommands', 'Commands'],
+    ],
+
+    // Optional tab titles of single pages, by path, replacing "<siteName> - <page title>",
+    // e.g. ['/' => 'MyMU - The best server', '/stats' => 'MyMU - Ranking'].
+    'pageTitles' => [],
+
     // Reset cap of the server. Characters who reached it get a glowing reset badge
     // in the ranking. Set to your server's real cap; 0 disables the highlight.
     'maxResets' => 10,
