@@ -22,7 +22,7 @@ if (!RateLimiter::hit('armory', ClientIp::get(), 30, 60)) {
 
 // Character names are at most 10 printable ASCII characters; anything else can't exist.
 $name = trim($characterName);
-if (!preg_match('/^[\x21-\x7E]{1,10}$/', $name)) {
+if (!preg_match('/^[\x21-\x7E]{1,10}$/', $name) || trim($name, '.') === '') {
     Http::error(404, 'ARMORY_NOT_FOUND', 'Character not found.');
 }
 

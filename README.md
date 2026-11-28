@@ -175,9 +175,14 @@ one limit. To fix it:
 2. Put the address the proxy connects from into `.env` as `TRUSTED_PROXIES=...`
    (comma separated IPs or CIDR). For a proxy on the Docker host that is the gateway of the
    site's Docker network: `docker inspect openmu-website -f '{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}'`.
-3. Run `docker compose up -d`.
+3. Let visitors in only through the proxy: with the proxy on the same host set `WEB_BIND=127.0.0.1`
+   in `.env` (or let the proxy connect to the container directly and drop the port). Otherwise a
+   visitor connecting to the site's port past the proxy - e.g. over IPv6, which Docker forwards
+   from the gateway address - would be trusted like the proxy.
+4. Run `docker compose up -d`.
 
 Only the listed proxies are trusted, so visitors can't get around the limits with a forged header.
+IPv6 visitors are counted per /64 network, the block one connection usually gets.
 
 ## Migrating from the C# version
 
@@ -192,7 +197,7 @@ available on the branch `csharp` (tag `v1-csharp`). To move to this version:
    `wwwroot/content.js` is gone afterwards: a file there would be served instead of your settings.
    The event timetable doesn't need copying - `tools/events-timetable.sql` prints it.
 4. Write the new `.env` from `.env.example`: `OPENMU_API_URL`, `OPENMU_API_KEY`; the `DB_*` and
-   `SERVER_CHECK_*` settings are gone. `WEB_PORT`, `TRUSTED_PROXIES` and `TIMEZ` stay.
+   `SERVER_CHECK_*` settings are gone. `WEB_PORT`, `TRUSTED_PROXIES` and `TIMEZ` stay; `WEB_BIND` is new.
 5. `docker compose up -d`. The old image `openmu-web:latest` can be removed: `docker image rm openmu-web:latest`.
 
 What changed for the players:

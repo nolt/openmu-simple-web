@@ -35,6 +35,8 @@ final class OpenMuApi
             CURLOPT_CONNECTTIMEOUT => 2,
             CURLOPT_TIMEOUT => 5,
             CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            // The path is sent as built; curl must not resolve "." or ".." segments of a name.
+            CURLOPT_PATH_AS_IS => true,
             CURLOPT_HEADERFUNCTION => static function ($handle, string $line) use (&$retryAfter): int {
                 if (preg_match('/^Retry-After:\s*(\d+)/i', $line, $match)) {
                     $retryAfter = (int)$match[1];
@@ -51,19 +53,27 @@ final class OpenMuApi
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         $response = curl_exec($curl);
         $status = $response === false ? 0 : (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $data = is_string($response) && $response !== '' ? json_decode($response, true) : null;
+
+        // A wrong password of a visitor is a 401 with a status in the body; a 401 without one, or a
+        // 403, is a problem of the key.
+        $passwordAnswer = is_array($data) && isset($data['status']);
         if ($status === 0) {
             self::log("$method $path failed: " . curl_error($curl));
-        } elseif ($status === 401 || $status === 403) {
+        } elseif (($status === 401 && !$passwordAnswer) || $status === 403) {
             self::log("$method $path: HTTP $status - check OPENMU_API_KEY, its role (WebManager) and the ticked functions");
         }
 
-        $data = is_string($response) && $response !== '' ? json_decode($response, true) : null;
         return ['status' => $status, 'data' => $data, 'retryAfter' => $retryAfter];
     }
 
     /**
-     * Returns the body of a successful GET from the cache, or loads it; null when it failed.
-     * A 404 is cached as well (as false), so asking for an unknown character again doesn't reach the API.
+     * Returns the body of a successful GET from the cache, or loads it; false for a 404, null when it
+     * failed.
+     *
+     * Only one request reloads an expired entry; the others meanwhile get the expired one, so a busy
+     * page doesn't send every visitor to the API at once. A 404 isn't cached: every made-up character
+     * name would leave a file behind.
      */
     public static function cachedGet(string $path, int $ttlSeconds): mixed
     {
@@ -72,18 +82,32 @@ final class OpenMuApi
             return $cached['data'] ?? null;
         }
 
-        $result = self::request('GET', $path);
-        $data = match (true) {
-            $result['status'] === 200 && $result['data'] !== null => $result['data'],
-            $result['status'] === 404 => false,
-            default => null,
-        };
+        // The reload lock is only needed when there is an expired entry to hand out meanwhile; taking
+        // it for every unknown path would leave a lock file per made-up name.
+        $lock = null;
+        if ($cached !== null) {
+            $lock = Store::tryLock('api', $path);
+            if ($lock === null) {
+                return $cached['data'] ?? null;
+            }
+        }
 
-        // A failure is remembered for a few seconds too: while the game server is down, every page
-        // would otherwise wait for the connect timeout.
-        $ttl = $data === null ? min(5, $ttlSeconds) : $ttlSeconds;
-        Store::write('api', $path, ['until' => time() + $ttl, 'data' => $data]);
-        return $data;
+        try {
+            $result = self::request('GET', $path);
+            if ($result['status'] === 404) {
+                return false;
+            }
+
+            $data = $result['status'] === 200 ? $result['data'] : null;
+
+            // A failure is remembered for a few seconds too: while the game server is down, every
+            // page would otherwise wait for the connect timeout.
+            $ttl = $data === null ? min(5, $ttlSeconds) : $ttlSeconds;
+            Store::write('api', $path, ['until' => time() + $ttl, 'data' => $data]);
+            return $data;
+        } finally {
+            Store::unlock($lock);
+        }
     }
 
     /** Writes to the container log (docker logs) without any secret. */

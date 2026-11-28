@@ -19,8 +19,9 @@ $zone = Config::env('TZ', 'UTC');
 date_default_timezone_set(in_array($zone, \DateTimeZone::listIdentifiers(), true) ? $zone : 'UTC');
 
 // Old cache and limit records are removed now and then, instead of by a separate job.
-if (random_int(1, 200) === 1) {
-    Store::cleanUp(2 * 86400);
+// The longest window is the 24 hours of the registration limit.
+if (random_int(1, 100) === 1) {
+    Store::cleanUp(25 * 3600);
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';

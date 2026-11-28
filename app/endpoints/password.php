@@ -36,7 +36,9 @@ if (!preg_match('/^[\x20-\x7E]+$/', $newPassword)) {
 }
 
 // Logins and passwords the game can't have are wrong anyway; no need to ask the server.
-if (!preg_match('/^[\x21-\x7E]{1,10}$/', $username) || !preg_match('/^[\x20-\x7E]{1,20}$/', $oldPassword)) {
+// A name of dots only ("." or "..") would change the path of the API call.
+if (!preg_match('/^[\x21-\x7E]{1,10}$/', $username) || trim($username, '.') === ''
+    || !preg_match('/^[\x20-\x7E]{1,20}$/', $oldPassword)) {
     Http::error(401, 'INVALID_OLD_PASSWORD', 'Incorrect login or current password.');
 }
 
@@ -50,7 +52,13 @@ switch ($result['status']) {
     case 204:
         Http::error(200, 'PASSWORD_CHANGE_SUCCESS', 'Password changed successfully!');
     case 401:
-        Http::error(401, 'INVALID_OLD_PASSWORD', 'Incorrect login or current password.');
+        // Only a refused password carries a status; a 401 without one means the site's key was refused.
+        if ($status === 'Failed') {
+            Http::error(401, 'INVALID_OLD_PASSWORD', 'Incorrect login or current password.');
+        }
+
+        OpenMuApi::log('password change failed: the API key was refused');
+        Http::error(500, 'SERVER_ERROR', 'An unexpected server error occurred.');
     case 409:
         $status === 'OfflineLeveling'
             ? Http::error(409, 'OFFLINE_LEVELING', 'Stop the offline leveling first.')

@@ -175,9 +175,14 @@ odwiedzającego. Za proxy strona widzi tylko adres proxy, więc wszyscy dzielą 
 2. Wpisz do `.env` adres, z którego łączy się proxy: `TRUSTED_PROXIES=...`
    (IP lub CIDR po przecinku). Dla proxy na hoście Dockera to bramka sieci Dockera strony:
    `docker inspect openmu-website -f '{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}'`.
-3. Uruchom `docker compose up -d`.
+3. Wpuszczaj odwiedzających tylko przez proxy: przy proxy na tym samym hoście ustaw w `.env`
+   `WEB_BIND=127.0.0.1` (albo niech proxy łączy się bezpośrednio z kontenerem, a port usuń). Inaczej
+   odwiedzający, który połączy się z portem strony z pominięciem proxy - np. przez IPv6, które Docker
+   przekazuje z adresu bramki - byłby traktowany jak proxy.
+4. Uruchom `docker compose up -d`.
 
 Ufamy tylko wpisanym proxy, więc odwiedzający nie obejdą limitów podrobionym nagłówkiem.
+Odwiedzający z IPv6 są liczeni per sieć /64 - blok, który zwykle dostaje jedno łącze.
 
 ## Przejście z wersji C#
 
@@ -192,7 +197,7 @@ branchu `csharp` (tag `v1-csharp`). Żeby przejść na tę wersję:
    `wwwroot/content.js` potem zniknął: plik w tym miejscu byłby serwowany zamiast twoich ustawień.
    Rozkładu eventów nie trzeba przepisywać - wypisze go `tools/events-timetable.sql`.
 4. Napisz nowy `.env` na podstawie `.env.example`: `OPENMU_API_URL`, `OPENMU_API_KEY`; ustawienia
-   `DB_*` i `SERVER_CHECK_*` znikają. `WEB_PORT`, `TRUSTED_PROXIES` i `TIMEZ` zostają.
+   `DB_*` i `SERVER_CHECK_*` znikają. `WEB_PORT`, `TRUSTED_PROXIES` i `TIMEZ` zostają; `WEB_BIND` jest nowe.
 5. `docker compose up -d`. Stary obraz `openmu-web:latest` można usunąć: `docker image rm openmu-web:latest`.
 
 Co zmieniło się dla graczy:

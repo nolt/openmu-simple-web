@@ -19,10 +19,6 @@ use SimpleWeb\RateLimiter;
 
 Http::requireAjax();
 $ip = ClientIp::get();
-if (RateLimiter::succeededWithin('register-success', $ip, 86400)) {
-    Http::error(429, 'RATE_LIMIT_IP', 'Limit: 1 account per 24h per IP.');
-}
-
 if (!RateLimiter::hit('register', $ip, 20, 3600)) {
     Http::error(429, 'RATE_LIMIT', 'Too many attempts. Try again later.');
 }
@@ -53,12 +49,20 @@ if (strlen($email) > 254 || filter_var($email, FILTER_VALIDATE_EMAIL) === false)
     Http::error(400, 'INVALID_EMAIL', 'Invalid email format.');
 }
 
+// The one account a day is reserved before the API call: parallel requests of one visitor would
+// otherwise all pass the check while the first account is still being created.
+if (!RateLimiter::reserve('register-success', $ip, 86400, 30)) {
+    Http::error(429, 'RATE_LIMIT_IP', 'Limit: 1 account per 24h per IP.');
+}
+
 $result = OpenMuApi::request('POST', '/accounts', ['loginName' => $username, 'password' => $password, 'eMail' => $email]);
+if ($result['status'] === 200 || $result['status'] === 201) {
+    RateLimiter::confirm('register-success', $ip);
+    Http::error(200, 'REGISTRATION_SUCCESS', 'Account created successfully!');
+}
+
+RateLimiter::release('register-success', $ip);
 switch ($result['status']) {
-    case 200:
-    case 201:
-        RateLimiter::recordSuccess('register-success', $ip);
-        Http::error(200, 'REGISTRATION_SUCCESS', 'Account created successfully!');
     case 409:
         Http::error(400, 'USERNAME_TAKEN', 'Username is already taken.');
     default:
