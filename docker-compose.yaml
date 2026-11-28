@@ -55,9 +55,14 @@ services:
     restart: always
 
 volumes:
-  # The PHP-FPM socket, shared by the two containers.
+  # The PHP-FPM socket, shared by the two containers. Fixed name, so it doesn't depend on the folder.
   php-socket:
+    name: openmu-website-php-socket
 
 networks:
+  # Private network of the site (nginx + PHP); visitors and the reverse proxy come in through it.
+  # Fixed name instead of "<folder>_default"; its gateway is what TRUSTED_PROXIES needs behind a proxy.
+  default:
+    name: openmu-website-net
   openmu-network:
     external: true
