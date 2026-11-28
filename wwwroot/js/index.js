@@ -11,8 +11,8 @@ window.onLanguageChanged = function (lang) {
     list.innerHTML = c.rows.map(row =>
         '<div class="details-row">' + row.map(d =>
             d.url
-                ? `<li><span class="detail-label">${d.label}:</span> <a href="${d.url}" target="_blank">${d.value}</a></li>`
-                : `<li><span class="detail-label">${d.label}:</span> ${d.value}</li>`
+                ? `<li><span class="detail-label">${escapeHtml(d.label)}:</span> <a href="${safeUrl(d.url)}" target="_blank" rel="noopener">${escapeHtml(d.value)}</a></li>`
+                : `<li><span class="detail-label">${escapeHtml(d.label)}:</span> ${escapeHtml(d.value)}</li>`
         ).join('') + '</div>'
     ).join('');
 };
@@ -65,7 +65,7 @@ function renderDownloads() {
         const cls = d.recommended ? 'recommended' : (d.soon ? 'soon' : '');
         const tag = d.recommended ? `<span class="dlC-tag">${t.dlRecommended}</span>`
             : (d.soon ? `<span class="dlC-tag">${t.dlSoon}</span>` : '');
-        return `<a class="dlC-item ${cls}" href="${d.soon ? '#' : d.url}"><span>${d.icon}</span> <span>${d.name}</span> ${tag}</a>`;
+        return `<a class="dlC-item ${cls}" href="${d.soon ? '#' : safeUrl(d.url)}"><span>${escapeHtml(d.icon)}</span> <span>${escapeHtml(d.name)}</span> ${tag}</a>`;
     }).join('');
 
     area.innerHTML = `

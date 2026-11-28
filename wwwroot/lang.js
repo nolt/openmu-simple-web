@@ -66,6 +66,14 @@
     window.currentLang = currentLang;
     window.t = () => window.muTranslations[currentLang()];
 
+    // Text from the server or the site config is put into HTML through this, so a name with "<"
+    // or a quote stays text and can't become markup.
+    window.escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    // Links from the site config: only web addresses, site paths and anchors, never "javascript:".
+    window.safeUrl = url => /^(https?:\/\/|\/|#)/i.test(String(url ?? '')) ? window.escapeHtml(url) : '#';
+
     // Apply the saved/default language once the DOM (and any onLanguageChanged hook) is ready.
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => setLanguage(currentLang()));

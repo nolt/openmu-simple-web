@@ -43,8 +43,8 @@ async function loadRanking() {
         rankingBody.innerHTML = data.map((char, index) => `
             <tr>
                 <td class="rank-number">${index + 1}</td>
-                <td class="char-name">${char.name}</td>
-                <td style="color: #aaa; font-size: 0.85rem; font-style: italic;">${char.className}</td>
+                <td class="char-name">${escapeHtml(char.name)}</td>
+                <td style="color: #aaa; font-size: 0.85rem; font-style: italic;">${escapeHtml(char.className)}</td>
                 <td style="white-space: nowrap;">
                     <span style="color: #fff; font-weight: bold; display: inline-block; width: 32px; text-align: right;">${char.level}</span>
                     <span class="reset-badge${maxResets > 0 && char.resets === maxResets ? ' max-reset' : ''}">${char.resets} RR</span>

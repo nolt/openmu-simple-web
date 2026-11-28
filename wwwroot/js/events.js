@@ -61,7 +61,7 @@ function renderEvent(event) {
     const dayPrefix = i => dayOf(i) != null && t.eventsDays ? t.eventsDays[dayOf(i)] + ' ' : '';
     const timetableHtml = event.timetable.map((time, i) => {
         const isNext = time === nextTimeStr && dayOf(i) == event.dayOfWeek;
-        return `<span class="event-time-badge${isNext ? ' next' : ''}">${dayPrefix(i)}${time}</span>`;
+        return `<span class="event-time-badge${isNext ? ' next' : ''}">${dayPrefix(i)}${escapeHtml(time)}</span>`;
     }).join('');
 
     const durationHtml = event.durationMinutes != null
@@ -73,11 +73,11 @@ function renderEvent(event) {
         : '';
 
     return `
-        <div class="event-card ${style.css}" data-event="${event.name}">
+        <div class="event-card ${style.css}" data-event="${escapeHtml(event.name)}">
             <div class="event-header">
                 <div class="event-name">
                     <span class="event-icon">${style.icon}</span>
-                    ${event.name}
+                    ${escapeHtml(event.name)}
                 </div>
                 ${durationHtml}
             </div>

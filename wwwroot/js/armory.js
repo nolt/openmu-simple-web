@@ -34,11 +34,6 @@ async function checkServerStatus() {
 checkServerStatus();
 setInterval(checkServerStatus, 30000);
 
-function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, c =>
-        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
 // Custom, themed item tooltip (replaces the native browser title tooltip). The lines are built
 // like the game client's tooltip by item-tooltip.js; the shown character is kept for it.
 const itemTooltip = document.getElementById('itemTooltip');
@@ -132,13 +127,15 @@ function renderEquip(items) {
             (item.isAncient ? '<span class="badge anc">ANC</span>' : '') +
             (item.sockets > 0 ? `<span class="badge sock">${item.sockets}S</span>` : '');
         return `<div class="armory-slot filled" style="${style}" data-index="${item.index}">
-                    <img src="/img/items/${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}"
-                         onerror="this.classList.add('img-missing')">
+                    <img src="/img/items/${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}">
                     ${badges}
                 </div>`;
     }).join('');
 
     equip.innerHTML = `<div class="armory-doll">${cells}</div>`;
+    // Missing pictures are marked from here, not with an inline onerror: the Content-Security-Policy
+    // of the site blocks inline handlers.
+    equip.querySelectorAll('img').forEach(img => img.addEventListener('error', () => img.classList.add('img-missing')));
 }
 
 async function loadCharacter(name) {
