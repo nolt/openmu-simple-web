@@ -24,9 +24,6 @@ async function checkServerStatus() {
     try {
         const response = await fetch('/api/public/server-status');
         const data = await response.json();
-        await window.ItemTooltip.load();
-        shownCharacter = data;
-        showClassPicture(data.className);
         statusDot.className = data.online ? 'status-dot online' : 'status-dot offline';
         statusText.innerText = data.online ? (t().online || 'Online') : (t().offline || 'Offline');
     } catch {
