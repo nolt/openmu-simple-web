@@ -128,7 +128,9 @@ async function loadEvents() {
             return;
         }
 
-        data.sort((a, b) => EVENT_ORDER.indexOf(a.name) - EVENT_ORDER.indexOf(b.name));
+        // Events the page doesn't know yet (e.g. a new OpenMU plugin) go after the known ones.
+        const order = name => EVENT_ORDER.includes(name) ? EVENT_ORDER.indexOf(name) : EVENT_ORDER.length;
+        data.sort((a, b) => order(a.name) - order(b.name));
 
         container.innerHTML = data.map(renderEvent).join('');
         setLanguage(lang);
