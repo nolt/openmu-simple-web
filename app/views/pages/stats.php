@@ -1,0 +1,28 @@
+<?php
+/** Ranking page: top 10 characters, filled by /js/stats.js. */
+$page = ['title' => 'Server Statistics', 'bodyClass' => 'stats-body', 'active' => '/stats',
+    'scripts' => ['/js/stats.js']];
+?>
+<h2 data-i18n="rankingTitle">Top 10 Heroes</h2>
+
+<div class="server-status" id="serverStatus">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Checking...</span>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 50px;">#</th>
+            <th data-i18n="charName">Character</th>
+            <th data-i18n="charClass">Class</th>
+            <th data-i18n="charLvl">Level</th>
+            <th data-i18n="charMl" class="master-level">Master Level</th>
+        </tr>
+    </thead>
+    <tbody id="rankingBody">
+        <tr>
+            <td colspan="5" class="table-loader">...</td>
+        </tr>
+    </tbody>
+</table>

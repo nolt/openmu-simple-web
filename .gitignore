@@ -1,8 +1,9 @@
-bin/
-obj/
 .vs/
 .vscode/
 *.user
 
 # local environment (copy from .env.example)
 .env
+
+# own settings and texts of the site (copy from config/site.local.example.php)
+config/site.local.php

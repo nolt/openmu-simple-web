@@ -1,23 +1,52 @@
+# openmu-simple-web: nginx (static files) + PHP-FPM (pages and endpoints), both official images,
+# nothing is built. The code is mounted from this folder, so "git pull" updates the running site.
+# Start: docker compose up -d   (settings in .env, see .env.example)
 services:
+  # Web server, the port visitors (or your reverse proxy) connect to.
   openmu-web:
-    image: openmu-web:latest
+    image: nginx:stable-alpine
     container_name: openmu-website
-    build:
-      context: .
-      dockerfile: Dockerfile 
     ports:
       - "${WEB_PORT:-8088}:8080"
+    volumes:
+      - ./wwwroot:/app/wwwroot:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - php-socket:/run/php-fpm
+    depends_on:
+      - openmu-web-php
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: always
+
+  # PHP, talks to the OpenMU website API over the OpenMU Docker network.
+  openmu-web-php:
+    image: php:8.5-fpm-alpine
+    container_name: openmu-website-php
+    volumes:
+      - ./app:/app/app:ro
+      - ./config:/app/config:ro
+      - ./docker/php-fpm.conf:/usr/local/etc/php-fpm.d/zz-docker.conf:ro
+      - ./docker/php.ini:/usr/local/etc/php/conf.d/zz-openmu-web.ini:ro
+      - php-socket:/run/php-fpm
     environment:
-      - ASPNETCORE_URLS=http://0.0.0.0:8080
-      - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS}
-      - ServerCheck__Host=${SERVER_CHECK_HOST:-openmu-server}
-      - ServerCheck__Port=${SERVER_CHECK_PORT:-44406}
-      - ServerCheck__ApiKey=${SERVER_CHECK_API_KEY:-}
-      - ReverseProxy__TrustedProxies=${TRUSTED_PROXIES:-}
-      - TZ=${TIMEZ}
+      # Admin panel of OpenMU, reachable from this container.
+      - OPENMU_API_URL=${OPENMU_API_URL:-http://openmu-server:8080}
+      # API key with the role WebManager (Admin Panel -> API keys).
+      - OPENMU_API_KEY=${OPENMU_API_KEY:-}
+      # Reverse proxies allowed to pass the visitor IP in X-Forwarded-For.
+      - TRUSTED_PROXIES=${TRUSTED_PROXIES:-}
+      - TZ=${TIMEZ:-UTC}
     networks:
+      - default
       - openmu-network
     restart: always
+
+volumes:
+  # The PHP-FPM socket, shared by the two containers.
+  php-socket:
 
 networks:
   openmu-network:
